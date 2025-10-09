@@ -1,45 +1,40 @@
 ---
-// Puedes cambiar las imágenes y textos según tu necesidad
+// Contenido actualizado con los 4 servicios de Automotive Consulting
 const services = [
   {
     img: '/image-service-01.webp',
-    title: 'Financiamiento Flexible',
-    desc: 'Opciones de crédito adaptadas a ti.'
+    title: 'Asesoría Automotriz',
+    desc: 'Asesoramos para encontrar tu vehículo, presupuesto y precios de mercado.'
   },
   {
     img: '/image-service-02.webp',
-    title: 'Certificación de Vehículos',
-    desc: 'Todos nuestros autos pasan por revisión profesional.'
+    title: 'Compra Venta',
+    desc: 'Stock de vehículos con entrega inmediata. Compramos tu auto.'
   },
   {
     img: '/image-service-03.webp',
-    title: 'Atención Personalizada',
-    desc: 'Te acompañamos en todo el proceso.'
+    title: 'Trámites Notariales',
+    desc: 'Gestión profesional de documentación vehicular con trámites digitales.'
+  },
+  {
+    img: '/image-service-04.webp',
+    title: 'Crédito Automotriz',
+    desc: 'Compra con financiamiento y múltiples formas de pago.'
   }
 ];
 ---
 
 <section class="py-16 bg-white relative">
-<div
-    class="absolute inset-0 z-0 pointer-events-none"
-    style={{
-      backgroundImage: `
-        repeating-linear-gradient(22.5deg, transparent, transparent 2px, rgba(75, 85, 99, 0.06) 2px, rgba(75, 85, 99, 0.06) 3px, transparent 3px, transparent 8px),
-        repeating-linear-gradient(67.5deg, transparent, transparent 2px, rgba(107, 114, 128, 0.05) 2px, rgba(107, 114, 128, 0.05) 3px, transparent 3px, transparent 8px),
-        repeating-linear-gradient(112.5deg, transparent, transparent 2px, rgba(55, 65, 81, 0.04) 2px, rgba(55, 65, 81, 0.04) 3px, transparent 3px, transparent 8px),
-        repeating-linear-gradient(157.5deg, transparent, transparent 2px, rgba(31, 41, 55, 0.03) 2px, rgba(31, 41, 55, 0.03) 3px, transparent 3px, transparent 8px)
-      `,
-    }}
-  />
   <div class="md:w-7xl mx-auto px-4">
     <h2 class="text-center text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">Servicios</h2>
-    <p class="text-xl text-center text-gray-600 mb-12">Asesoramiento automotriz especializado en compra y venta de vehículos</p>
+    <p class="text-xl text-center text-gray-600 mb-12 max-w-4xl mx-auto">Asesoramiento automotriz especializado en compra y venta de vehículos con mas de 10 años de experiencia en el sector.</p>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    {/* Grid ajustado para 4 columnas en desktop y 2 en tablet/móvil */}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
       {services.map((service) => (
         <div class="relative rounded-2xl overflow-hidden shadow-lg group">
           <img src={service.img} alt={service.title} class="w-full h-64 object-cover object-center group-hover:scale-105 transition-transform duration-300" />
-          <div class="absolute inset-0 bg-black/50 flex flex-col justify-center items-center px-4">
+          <div class="absolute inset-0 bg-black/50 flex flex-col justify-center items-center p-4 text-center">
             <h3 class="text-white text-2xl font-bold mb-2 text-center drop-shadow-lg">{service.title}</h3>
             <p class="text-white text-base text-center opacity-90 drop-shadow-md">{service.desc}</p>
           </div>

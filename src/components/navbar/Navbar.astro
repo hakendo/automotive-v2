@@ -1,24 +1,25 @@
 ---
 import Hamburger from "../hamburger-menu/Hamburger.astro";
 
+const currentPath = Astro.url.pathname;
+
 const logo = {
-  src: "/logowildars.webp",
-  alt: "AutoLoa Logo",
-  width: 200,
-  height: 80
+  src: "/logo-ac-light.webp",
+  alt: "Automotive Consulting",
+  width: 240, 
+  height: 96
 };
+
 const socialLinks = [
     { 
         name: "Facebook", 
-        href: "https://www.facebook.com/share/1HasH35A91/?mibextid=wwXIfr", 
+        href: "https://web.facebook.com/automotiveconsultingcl",
         iconClass: "fab fa-facebook-f",
-        hoverColor: "hover:bg-blue-600"
     },
     { 
         name: "Instagram", 
-        href: "https://www.instagram.com/wildcars.chile?igsh=MWFvcnl5aTZvZ2o5bw==", 
+        href: "https://www.instagram.com/automotive_consulting_cl/",
         iconClass: "fab fa-instagram",
-        hoverColor: "hover:bg-pink-600"
     }
 ];
 
@@ -28,50 +29,68 @@ const navLinks = [
     { name: "Catálogo", href: "/catalogo" },
     { name: "Contacto", href: "/contacto" }
 ];
-
 ---
 
-<nav class="bg-white fixed w-full top-0 z-50">
+<nav class="bg-black fixed w-full top-0 z-50">
   <div class="relative md:w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-20">
-      <!-- Logo (Always on the left) -->
+    <div class="flex justify-between items-center h-24">
+      
       <div class="flex-shrink-0">
         <a href="/" class="flex items-center">
-          <img class="h-14 w-auto" src={logo.src} alt={logo.alt} width={logo.width} height={logo.height} />
+          <img class="h-20 w-auto" src={logo.src} alt={logo.alt} width={logo.width} height={logo.height} />
         </a>
       </div>
 
-      <!-- Navigation Links (Hidden on mobile, centered on desktop) -->
-      <div class="hidden lg:flex lg:items-center lg:space-x-8 lg:absolute lg:left-1/2 lg:transform lg:-translate-x-1/2">
-        {navLinks.map((link) => (
-          <a href={link.href} class="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            {link.name}         
-          </a>
-        ))}
-      </div>
+      <div class="hidden lg:flex items-center space-x-8">
+        <div class="flex items-center space-x-8">
+          {navLinks.map((link) => {
+            const isActive = currentPath === link.href || (link.href === '/catalogo' && currentPath.startsWith('/vehiculos'));
+            return (
+              <a 
+                href={link.href} 
+                class:list={[
+                  "nav-link text-white font-bold px-3 py-2 rounded-md text-sm transition-colors", // <-- Le añadí la clase 'nav-link'
+                  { 'text-ac-blue': isActive } 
+                ]}
+              >
+                {link.name}         
+              </a>
+            )
+          })}
+        </div>
 
-      <!-- Social Media Icons (Always visible, smaller on mobile) -->
-      <div class="flex space-x-2 lg:space-x-4">
-        {socialLinks.map((social) => (
-          <a 
-            href={social.href} 
-            target="_blank"
-            rel="noopener noreferrer"
-            class={`w-8 h-8 lg:w-10 lg:h-10 bg-gray-800 rounded-full flex items-center justify-center ${social.hoverColor} transition-colors duration-200`}
-            aria-label={social.name}
-          >
-            <i class={`${social.iconClass} text-white text-sm lg:text-lg`}></i>
-          </a>
-        ))}
-      </div>
+        <div class="h-6 w-px bg-gray-700"></div>
+        
+        <a href="/contacto" class="bg-ac-blue text-white font-bold px-5 py-2.5 rounded-lg hover:opacity-80 transition-opacity text-sm shadow-lg">
+          Consignación
+        </a>
 
-      <!-- Mobile hamburger menu - EN LA POSICIÓN CORRECTA -->
-      <div class="lg:hidden ml-4">
+        <div class="flex space-x-3">
+          {socialLinks.map((social) => (
+            <a 
+              href={social.href} 
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-gray-400 hover:text-white transition-colors duration-200"
+              aria-label={social.name}
+            >
+              <i class={`${social.iconClass} text-xl`}></i>
+            </a>
+          ))}
+        </div>
+      </div>
+      
+      <div class="lg:hidden">
         <Hamburger />  
       </div>
 
     </div>
   </div>
-
 </nav>
 
+{/* ESTILOS AÑADIDOS PARA FORZAR EL HOVER */}
+<style>
+  a.nav-link:hover {
+    color: #20B3C2; /* Este es tu color ac-blue */
+  }
+</style>

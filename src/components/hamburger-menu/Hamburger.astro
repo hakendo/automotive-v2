@@ -5,27 +5,22 @@ const navLinks = [
     { name: "Catálogo", href: "/catalogo" },
     { name: "Contacto", href: "/contacto" }
 ];
-
 ---
 
 <button class="hamburger" type="button" aria-label="Abrir menú">
   <svg class="hamburger-icon" width="24" height="18" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path class="line line-1" d="M2 2H22" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>
-    <path class="line line-2" d="M2 9H22" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>
-    <path class="line line-3" d="M2 16H22" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>
+    <path class="line line-1" d="M2 2H22" stroke="#20B3C2" stroke-width="3" stroke-linecap="round"/>
+    <path class="line line-2" d="M2 9H22" stroke="#20B3C2" stroke-width="3" stroke-linecap="round"/>
+    <path class="line line-3" d="M2 16H22" stroke="#20B3C2" stroke-width="3" stroke-linecap="round"/>
   </svg>
 </button>
 
-  <!-- Menú móvil ESTILO AIRBNB -->
   <div class="movil-links fixed inset-0 bg-black/20 backdrop-blur-sm z-50 hidden">
-    <!-- Overlay para cerrar al hacer click fuera -->
     <div class="absolute inset-0" onclick="document.querySelector('.movil-links').classList.add('hidden')"></div>
     
-    <!-- Contenedor principal del menú -->
-    <div class="absolute top-16 right-4 left-4 max-w-sm mx-auto bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-slide-down">
+    <div class="absolute top-24 right-4 left-4 max-w-sm mx-auto bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-slide-down">
       
-      <!-- Header del menú -->
-      <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
+      <div class="bg-gradient-to-r from-gray-800 to-black px-6 py-4">
         <div class="flex items-center justify-between">
           <h3 class="text-white font-semibold text-lg">Menú</h3>
           <button onclick="document.querySelector('.movil-links').classList.add('hidden')" 
@@ -37,258 +32,77 @@ const navLinks = [
         </div>
       </div>
 
-      <!-- Enlaces de navegación -->
       <div class="py-2">
-        {navLinks.map((link, index) => (
+         {navLinks.map((link, index) => (
           <a href={link.href} 
-             class="group flex items-center px-6 py-4 text-gray-800 hover:bg-red-50 transition-all duration-200 border-b border-gray-50 last:border-b-0"
-             style={`animation-delay: ${index * 100}ms`}>
+             class="group flex items-center px-6 py-4 text-gray-800 hover:bg-blue-50 transition-all duration-200 border-b border-gray-100 last:border-b-0">
             
-            <!-- Icono dinámico -->
-            <div class="w-10 h-10 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mr-4 group-hover:from-red-200 group-hover:to-red-300 transition-all">
-              {link.name === "Inicio" && (
-                <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10.707 2.293a1 1 0 00-1.414 0l-9 9a1 1 0 001.414 1.414L2 12.414V17a1 1 0 001 1h14a1 1 0 001-1v-4.586l.293.293a1 1 0 001.414-1.414l-9-9z"/>
-                </svg>
-              )}
-              {link.name === "Nosotros" && (
-                <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
-                </svg>
-              )}
-              {link.name === "Catálogo" && (
-                <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/>
-                </svg>
-              )}
-              {link.name === "Contacto" && (
-                <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
-                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
-                </svg>
-              )}
+            <div class="w-10 h-10 bg-ac-blue/10 text-ac-blue rounded-full flex items-center justify-center mr-4 group-hover:bg-ac-blue/20 transition-all">
+              {link.name === "Inicio" && <i class="fas fa-home"></i>}
+              {link.name === "Nosotros" && <i class="fas fa-users"></i>}
+              {link.name === "Catálogo" && <i class="fas fa-car"></i>}
+              {link.name === "Contacto" && <i class="fas fa-envelope"></i>}
             </div>
 
-            <!-- Texto del enlace -->
             <div class="flex-1">
-              <span class="font-medium text-gray-900 group-hover:text-red-600 transition-colors">
+              <span class="font-medium text-gray-900 group-hover:text-ac-blue transition-colors">
                 {link.name}
               </span>
-              <div class="text-sm text-gray-500 mt-0.5">
-                {link.name === "Inicio" && "Página principal"}
-                {link.name === "Nosotros" && "Conoce nuestro equipo"}
-                {link.name === "Catálogo" && "Explora nuestros vehículos"}
-                {link.name === "Contacto" && "Ponte en contacto"}
-              </div>
             </div>
 
-            <!-- Flecha -->
-            <svg class="w-5 h-5 text-gray-400 group-hover:text-red-600 transition-colors" 
-                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 text-gray-400 group-hover:text-ac-blue transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
             </svg>
           </a>
         ))}
-      </div>
-
-      <!-- Footer del menú -->
-      <div class="bg-gray-50 px-6 py-4 text-center">
-        <p class="text-sm text-gray-600">Wild Cars</p>
+         <a href="/contacto" class="group flex items-center px-6 py-4 text-gray-800 hover:bg-blue-50 transition-all duration-200">
+            <div class="w-10 h-10 bg-ac-blue/10 text-ac-blue rounded-full flex items-center justify-center mr-4 group-hover:bg-ac-blue/20 transition-all">
+                <i class="fas fa-handshake"></i>
+            </div>
+            <div class="flex-1">
+                <span class="font-medium text-gray-900 group-hover:text-ac-blue transition-colors">Consignación</span>
+            </div>
+             <svg class="w-5 h-5 text-gray-400 group-hover:text-ac-blue transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+        </a>
       </div>
     </div>
   </div>
 
 
 <script is:inline>
-  console.log("🔥 Script hamburger iniciado - CON FUNCIONALIDAD DE MENÚ");
-  
-  function setupHamburger() {
-    console.log("🚀 Configurando hamburger...");
-    
+  document.addEventListener("DOMContentLoaded", function() {
     const hamburger = document.querySelector(".hamburger");
     const mobileMenu = document.querySelector(".movil-links");
-    
-    console.log("🍔 Hamburger encontrado:", !!hamburger);
-    console.log("📱 Menú móvil encontrado:", !!mobileMenu);
 
     if (hamburger && mobileMenu) {
-      console.log("✅ Agregando event listeners al botón");
-      
-      // Método principal: addEventListener 
       hamburger.addEventListener("click", function(event) {
-        console.log("🖱️ CLICK DETECTADO - Toggling menú");
-        event.preventDefault();
         event.stopPropagation();
-        
-        // Toggle del menú móvil
         mobileMenu.classList.toggle("hidden");
-        
-        // Verificar estado del menú
-        const isHidden = mobileMenu.classList.contains("hidden");
-        console.log("� Menú está oculto:", isHidden);
-        console.log("🎯 Menú " + (isHidden ? "cerrado" : "abierto"));
-      });
-      
-      console.log("🎪 Event listeners configurados correctamente");
-    } else {
-      console.error("❌ No se encontraron los elementos:", {
-        hamburger: !!hamburger,
-        mobileMenu: !!mobileMenu
       });
     }
-  }
-
-  // Ejecutar cuando el DOM esté listo
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setupHamburger);
-  } else {
-    setupHamburger();
-  }
+  });
 </script>
 
 <style>
-  /* BOTÓN HAMBURGER ESTILO AIRBNB PREMIUM */
   .hamburger {
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    border: 1px solid #e9ecef;
     border-radius: 12px;
     cursor: pointer;
     padding: 12px;
-    position: relative;
     z-index: 1000;
     width: 48px;
     height: 48px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
   }
-  
-  .hamburger:hover {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-color: #dc2626;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15), 0 2px 6px rgba(0, 0, 0, 0.08);
-  }
-  
-  .hamburger:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .hamburger:focus {
-    outline: none;
-    border-color: #dc2626;
-    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
-  }
-
-  /* LÍNEAS DEL HAMBURGER - SVG ROJAS */
-  .hamburger .hamburger-icon {
-    width: 24px;
-    height: 18px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .hamburger .line {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    transform-origin: center;
-  }
-  
-  .hamburger:hover .line {
-    stroke: #ef4444;
-    stroke-width: 3.5;
-  }
-  
-  .hamburger:hover .hamburger-icon {
-    transform: scale(1.05);
-    filter: drop-shadow(0 1px 3px rgba(220, 38, 38, 0.3));
-  }
-
-  /* ESTADO ACTIVO - TRANSFORMACIÓN A X */
-  .hamburger.active .line-1 {
-    transform: rotate(45deg) translate(6px, 6px);
-    stroke: #ef4444;
-  }
-  
-  .hamburger.active .line-2 {
-    opacity: 0;
-    transform: scale(0);
-  }
-  
-  .hamburger.active .line-3 {
-    transform: rotate(-45deg) translate(6px, -6px);
-    stroke: #ef4444;
-  }
-
-  /* MENÚ MÓVIL ESTILO AIRBNB */
-  .movil-links {
-    z-index: 999;
-    animation: fadeIn 0.3s ease-out;
-  }
-  
-  .movil-links.hidden {
-    pointer-events: none !important;
-    visibility: hidden;
-    opacity: 0;
-  }
-  
-  .movil-links:not(.hidden) {
-    pointer-events: auto;
-    visibility: visible;
-    opacity: 1;
-  }
-  
-  .movil-links:not(.hidden) a {
-    pointer-events: auto;
-  }
-
-  /* ANIMACIONES SUAVES */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-20px) scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
   .animate-slide-down {
     animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
-
-  /* EFECTOS HOVER ADICIONALES */
-  .group:hover .w-10 {
-    transform: scale(1.05);
-  }
-
-  /* RESPONSIVE */
-  @media (max-width: 640px) {
-    .hamburger {
-      width: 44px;
-      height: 44px;
-      padding: 10px;
-    }
-    
-    .hamburger .line {
-      width: 18px;
-    }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 </style>
-
-

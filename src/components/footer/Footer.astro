@@ -1,6 +1,4 @@
 ---
-
-// Footer component data
 const menuLinks = [
     { name: "Inicio", href: "/" },
     { name: "Nosotros", href: "/nosotros" },
@@ -11,13 +9,13 @@ const menuLinks = [
 const socialLinks = [
     { 
         name: "Facebook", 
-        href: "https://www.facebook.com/share/1HasH35A91/?mibextid=wwXIfr", 
+        href: "https://web.facebook.com/automotiveconsultingcl", 
         icon: "fab fa-facebook-f",
         target: "_blank"
     },
     { 
         name: "Instagram", 
-        href: "https://www.instagram.com/wildcars.chile?igsh=MWFvcnl5aTZvZ2o5bw==", 
+        href: "https://www.instagram.com/automotive_consulting_cl/", 
         icon: "fab fa-instagram",
         target: "_blank"
     }
@@ -26,134 +24,93 @@ const socialLinks = [
 const contactInfo = [
     {
         type: "Dirección",
-        value: "Av. la Dehesa 1500. Torre 2, piso 4, oficina 8, La Dehesa",
+        value: "Camino El Alba 8760, of 304, Las Condes.",
         icon: "fas fa-map-marker-alt",
-        link: "https://maps.google.com/?q=Av.+la+Dehesa+1500+Torre+2+piso+4+oficina+8+La+Dehesa",
-        isExternal: true
     },
     {
         type: "Teléfono",
-        value: "+56 9 8993 9362",
+        value: "+56 9 7622 5094",
         icon: "fas fa-phone",
-        link: "tel:+56989939362",
-        isExternal: false
+        link: "tel:+56976225094",
     },
     {
         type: "Correo",
-        value: "rolando@wildcars.cl",
+        value: "roco.solange@automotiveconsulting.cl",
         icon: "fas fa-envelope",
-        link: "mailto:rolando@wildcars.cl",
-        isExternal: false
+        link: "mailto:roco.solange@automotiveconsulting.cl",
     }
 ];
 ---
 
-
-<footer class="bg-white text-gray-950 relative z-1 border-t-2 border-solid border-gray-100">
-<div
-    class="absolute inset-0 z-0 pointer-events-none"
-    style={{
-      backgroundImage: `
-        repeating-linear-gradient(22.5deg, transparent, transparent 2px, rgba(75, 85, 99, 0.06) 2px, rgba(75, 85, 99, 0.06) 3px, transparent 3px, transparent 8px),
-        repeating-linear-gradient(67.5deg, transparent, transparent 2px, rgba(107, 114, 128, 0.05) 2px, rgba(107, 114, 128, 0.05) 3px, transparent 3px, transparent 8px),
-        repeating-linear-gradient(112.5deg, transparent, transparent 2px, rgba(55, 65, 81, 0.04) 2px, rgba(55, 65, 81, 0.04) 3px, transparent 3px, transparent 8px),
-        repeating-linear-gradient(157.5deg, transparent, transparent 2px, rgba(31, 41, 55, 0.03) 2px, rgba(31, 41, 55, 0.03) 3px, transparent 3px, transparent 8px)
-      `,
-    }}
-  />
-  
-    <div class="md:w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10 ">
-        <!-- Main Footer Content -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            
-            <!-- Primera Columna: Logo y Redes Sociales -->
-            <div class="space-y-6">
-                <!-- Logo -->
-                <div class="flex items-center space-x-2">
-                      <img class="h-8 w-auto" src="/logowildars-movil.webp" alt="auto loa - automotora">
-                        <span class="ml-2 text-xl font-bold text-black">Wild Cars</span>
-                </div>
-                
-                <!-- Redes Sociales -->
-                <div>
-                    <h3 class="text-lg font-semibold mb-4 text-black">Síguenos</h3>
-                    <div class="flex space-x-4">
-                        {socialLinks.map((social) => (
-                            <a 
-                                href={social.href} 
-                                class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors duration-200"
-                                aria-label={social.name}
-                                target={social.target} rel="noopener noreferrer"
-                            >
-                                <i class={`${social.icon} text-sm text-white`}></i>
-                            </a>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Segunda Columna: Enlaces del Menú -->
-            <div>
-                <h3 class="text-lg font-semibold mb-6 text-black">Navegación</h3>
-                <ul class="space-y-3">
-                    {menuLinks.map((link) => (
-                        <li>
-                            <a 
-                                href={link.href} 
-                                class="text-black hover:text-red-600 transition-colors duration-200 flex items-center"
-                            >
-                                <i class="fas fa-chevron-right text-xs mr-2"></i>
-                                {link.name}
-                            </a>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-
-            <!-- Tercera Columna: Información de Contacto -->
-            <div>
-                <h3 class="text-lg font-semibold mb-6 text-black">Contacto</h3>
-                <div class="space-y-4">
-                    {contactInfo.map((contact) => (
-                        <div class="flex items-start space-x-3">
-                            <div class="flex-shrink-0">
-                                <i class={`${contact.icon} text-black mt-1`}></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-600">{contact.type}</p>
-                                {contact.link ? (
-                                    <a 
-                                        href={contact.link}
-                                        target={contact.isExternal ? "_blank" : undefined}
-                                        rel={contact.isExternal ? "noopener noreferrer" : undefined}
-                                        class="text-black hover:text-red-600 transition-colors duration-200 underline decoration-dotted hover:decoration-solid"
-                                    >
-                                        {contact.value}
-                                    </a>
-                                ) : (
-                                    <p class="text-black">{contact.value}</p>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
+<footer class="bg-gradient-to-b from-black to-gray-900 text-white relative z-1">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      
+      {/* Columna 1: Logo y Redes Sociales (Contenido Original) */}
+      <div class="space-y-6">
+        <a href="/" class="flex items-center space-x-2">
+          <img class="h-12 w-auto" src="/logo-ac-light.webp" alt="Automotive Consulting">
+        </a>
+        <p class="text-sm text-gray-400">Calidad y confianza en cada vehículo. Te asesoramos en la compra y venta de tu auto.</p>
+        <div>
+          <h3 class="text-lg font-semibold mb-4">Síguenos</h3>
+          <div class="flex space-x-4">
+            {socialLinks.map((social) => (
+              <a href={social.href} class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-ac-blue transition-colors duration-200" aria-label={social.name} target={social.target} rel="noopener noreferrer">
+                <i class={`${social.icon} text-sm text-white`}></i>
+              </a>
+            ))}
+          </div>
         </div>
+      </div>
 
-        <!-- Divisor -->
-        <div class="border-t border-gray-800 mt-12 pt-6">
-            <!-- Columna de ancho completo -->
-            <div class="text-center">
-                <p class="text-gray-900 text-sm">
-                    © 2025 Wild Cars. Todos los derechos reservados.
-                </p>
-                <p class="text-gray-900 text-xs mt-2">
-                    Diseño y desarrollo 
-                    <a href="https://venpu.cl" target="_blank" class="text-red-400 hover:text-red-300 transition-colors duration-200 font-medium">
-                        Venpu
-                    </a>
-                </p>
+      {/* Columna 2: Navegación (Contenido Original) */}
+      <div>
+        <h3 class="text-lg font-semibold mb-6">Navegación</h3>
+        <ul class="space-y-3">
+          {menuLinks.map((link) => (
+            <li>
+              <a href={link.href} class="text-gray-400 hover:text-white transition-colors duration-200 flex items-center">
+                <i class="fas fa-chevron-right text-xs mr-2"></i>
+                {link.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Columna 3: Contacto (Contenido Original) */}
+      <div>
+        <h3 class="text-lg font-semibold mb-6">Contacto</h3>
+        <div class="space-y-4">
+          {contactInfo.map((contact) => (
+            <div class="flex items-start space-x-3">
+              <div class="flex-shrink-0">
+                <i class={`${contact.icon} text-ac-blue mt-1`}></i>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-gray-300">{contact.type}</p>
+                <a href={contact.link} class="text-gray-400 hover:text-white transition-colors duration-200 underline decoration-dotted hover:decoration-solid">
+                  {contact.value}
+                </a>
+              </div>
             </div>
+          ))}
         </div>
+      </div>
     </div>
+
+    {/* Copyright */}
+    <div class="border-t border-gray-800 mt-12 pt-6">
+      <div class="text-center">
+        <p class="text-gray-400 text-sm">© 2025 Automotive Consulting. Todos los derechos reservados.</p>
+        <p class="text-gray-500 text-xs mt-2">
+          Diseño y desarrollo 
+          <a href="https://venpu.cl" target="_blank" class="text-ac-blue hover:opacity-80 transition-colors duration-200 font-medium">
+            Venpu
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
 </footer>

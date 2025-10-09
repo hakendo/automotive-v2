@@ -18,6 +18,7 @@ export type Datum = {
   available: boolean;
   description: string;
   brand: string;
+  label: string; // <-- LÍNEA AÑADIDA PARA SOLUCIONAR EL ERROR
   imageGallery: ImageGallery[];
   vendedor: {
     id: number;
