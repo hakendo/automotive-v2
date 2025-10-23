@@ -14,12 +14,9 @@ const contactDetails = [
 ];
 const locations = [
     // --- IMPORTANTE: Reemplaza estas URLs con las URLs de Embed correctas de Google Maps ---
-    // 1. Ve a Google Maps, busca la dirección.
-    // 2. Haz clic en "Compartir" > "Insertar un mapa".
-    // 3. Copia la URL que está DENTRO del atributo src="..." y pégala aquí.
-    { name: "Sucursal Las Condes", address: "Camino El Alba 8760, of 304, Santiago, Chile.", mapSrc: "URL_DE_EMBED_DE_GOOGLE_MAPS_AQUÍ" },
-    { name: "Sucursal Macul", address: "Auto Park, Av. Departamental 4400, Santiago, Chile.", mapSrc: "URL_DE_EMBED_DE_GOOGLE_MAPS_AQUÍ" },
-    { name: "Sucursal Viña del Mar", address: "Auto Park, Cam. Internacional 3500, Viña del Mar, Valparaíso, Chile.", mapSrc: "URL_DE_EMBED_DE_GOOGLE_MAPS_AQUÍ" }
+    { name: "Sucursal Las Condes", address: "Camino El Alba 8760, of 304, Santiago, Chile.", mapSrc: "URL_DE_EMBED_GOOGLE_MAPS_LAS_CONDES" }, // <-- PEGA AQUÍ LA URL SRC DEL IFRAME
+    { name: "Sucursal Macul", address: "Auto Park, Av. Departamental 4400, Santiago, Chile.", mapSrc: "URL_DE_EMBED_GOOGLE_MAPS_MACUL" }, // <-- PEGA AQUÍ LA URL SRC DEL IFRAME
+    { name: "Sucursal Viña del Mar", address: "Auto Park, Cam. Internacional 3500, Viña del Mar, Valparaíso, Chile.", mapSrc: "URL_DE_EMBED_GOOGLE_MAPS_VINA" } // <-- PEGA AQUÍ LA URL SRC DEL IFRAME
 ]
 ---
 
@@ -28,95 +25,99 @@ const locations = [
   description="Escríbenos si tienes alguna duda o si quieres vender tu automovil de forma segura y confiable."
   image="/image-service-01.webp"
 >
+  {/* --- INICIO SCRIPT hCaptcha y LÓGICA DE ENVÍO (Estilo Wildcars) --- */}
   <Fragment slot="head">
-    {/* Script hCaptcha (ya lo tenías, se mantiene) */}
     <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-    
-    {/* ===== INICIO: SCRIPT onSubmit (Estilo Wildcars + hCaptcha) ===== */}
     <script define:vars={{ keyHcaptcha }}>
-      const form = document.getElementById('contact-form');
-      const formStatus = document.getElementById('form-status');
-      const statusText = formStatus?.querySelector('p');
+      document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('contact-form');
+        const formStatus = document.getElementById('form-status');
+        const statusText = formStatus?.querySelector('p');
 
-      form?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const hc = typeof window.hcaptcha !== 'undefined' ? window.hcaptcha : null;
-
-        if (!form || !formStatus || !statusText || !hc) {
-            console.error("Error: Elementos del formulario no encontrados o hCaptcha no cargado.");
-            alert('Error: No se pudo inicializar el formulario.');
+        if (!form || !formStatus || !statusText) {
+            console.error("Error: Elementos del formulario no encontrados.");
             return;
         }
 
-        // 1. Obtener token hCaptcha
-        const hcaptchaResponse = hc.getResponse();
-        if (!hcaptchaResponse) {
-          formStatus.classList.remove('hidden');
-          statusText.textContent = 'Por favor, completa la verificación de seguridad.';
-          statusText.className = 'text-center font-medium text-red-600';
-          return;
+        // Verificar si la clave hCaptcha está presente en el cliente
+        if (!keyHcaptcha) {
+            console.error("La clave del sitio hCaptcha no está disponible.");
+            const captchaContainer = document.querySelector('.h-captcha');
+            if (captchaContainer) captchaContainer.innerHTML = '<p class="text-red-600 text-center font-medium">Error: Falta configuración de CAPTCHA.</p>';
         }
 
-        // 2. Crear objeto JSON (Método Wildcars)
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
-        data['h-captcha-response'] = hcaptchaResponse; // Añadir token
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
 
-        // 3. Deshabilitar formulario
-        const submitButton = form.querySelector('button[type="submit"]');
-        const originalText = submitButton.textContent;
-        form.querySelectorAll('input, textarea, button').forEach(el => el.setAttribute('disabled', 'true'));
-        submitButton.textContent = 'Enviando...';
-        formStatus.classList.remove('hidden');
-        statusText.textContent = 'Enviando mensaje...';
-        statusText.className = 'text-center font-medium text-gray-600';
-
-        try {
-          // 4. Enviar como JSON (Método Wildcars)
-          const response = await fetch('/api/send-email', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-          });
-
-          const result = await response.json();
-
-          if (!response.ok || result.success === false) {
-            throw new Error(result.message || `Error del servidor (${response.status})`);
+          const hc = typeof window.hcaptcha !== 'undefined' ? window.hcaptcha : null;
+          if (!hc) {
+            console.error("Error: hCaptcha no cargado.");
+            statusText.textContent = 'Error: El sistema CAPTCHA no cargó. Refresca la página.';
+            formStatus.classList.remove('hidden');
+            formStatus.className = 'mt-4 text-center font-medium text-red-600';
+            return;
           }
 
-          // Éxito
-          form.reset();
-          hc.reset();
-          statusText.textContent = '¡Mensaje enviado con éxito!';
-          statusText.className = 'text-center font-medium text-green-600';
-          setTimeout(() => formStatus.classList.add('hidden'), 5000);
+          // 1. Obtener token hCaptcha
+          const hcaptchaResponse = hc.getResponse();
+          if (!hcaptchaResponse) {
+            formStatus.classList.remove('hidden');
+            statusText.textContent = 'Por favor, completa la verificación de seguridad.';
+            statusText.className = 'mt-4 text-center font-medium text-red-600';
+            return;
+          }
 
-        } catch (error) {
-          // Error
-          hc.reset();
-          console.error("Error al enviar formulario:", error);
-          statusText.textContent = `Error: ${error.message || 'Intenta nuevamente.'}`;
-          statusText.className = 'text-center font-medium text-red-600';
-        } finally {
-          // Habilitar
-          form.querySelectorAll('input, textarea, button').forEach(el => el.removeAttribute('disabled'));
-          submitButton.textContent = originalText;
-        }
+          // 2. Crear objeto JSON (Método Wildcars)
+          const formData = new FormData(form);
+          const data = Object.fromEntries(formData.entries());
+          data['h-captcha-response'] = hcaptchaResponse; // Añadir token
+
+          // 3. Deshabilitar formulario y mostrar estado
+          const submitButton = form.querySelector('button[type="submit"]');
+          const originalText = submitButton.textContent;
+          form.querySelectorAll('input, textarea, button').forEach(el => el.setAttribute('disabled', 'true'));
+          submitButton.textContent = 'Enviando...';
+          formStatus.classList.remove('hidden');
+          statusText.textContent = 'Enviando mensaje...';
+          statusText.className = 'mt-4 text-center font-medium text-gray-600';
+
+          try {
+            // 4. Enviar como JSON (Método Wildcars)
+            const response = await fetch('/api/send-email', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || result.success === false) {
+              throw new Error(result.message || `Error del servidor (${response.status})`);
+            }
+
+            // Éxito
+            form.reset();
+            hc.reset();
+            statusText.textContent = '¡Mensaje enviado con éxito!';
+            statusText.className = 'mt-4 text-center font-medium text-green-600';
+            setTimeout(() => formStatus.classList.add('hidden'), 5000);
+
+          } catch (error) {
+            // Error
+            hc.reset();
+            console.error("Error al enviar formulario:", error);
+            statusText.textContent = `Error: ${error.message || 'Intenta nuevamente.'}`;
+            statusText.className = 'mt-4 text-center font-medium text-red-600';
+          } finally {
+            // Habilitar
+            form.querySelectorAll('input, textarea, button').forEach(el => el.removeAttribute('disabled'));
+            submitButton.textContent = originalText;
+          }
+        });
       });
-
-      // Verificación de clave hCaptcha al cargar
-       document.addEventListener('DOMContentLoaded', () => {
-           if (!keyHcaptcha) {
-               console.error("Clave hCaptcha (PUBLIC) no disponible.");
-               const captchaContainer = document.querySelector('.h-captcha');
-               if (captchaContainer) captchaContainer.innerHTML = '<p class="text-red-600 text-center font-medium">Error: Falta configuración CAPTCHA.</p>';
-           }
-       });
     </script>
-    {/* ===== FIN: SCRIPT onSubmit ===== */}
   </Fragment>
+  {/* --- FIN SCRIPT --- */}
 
   <section class="bg-white py-24 pt-48">
     <div class="md:w-7xl mx-auto px-4 text-center">
@@ -134,7 +135,6 @@ const locations = [
         <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-8 md:p-12">
           <h2 class="text-3xl font-bold text-gray-900 mb-6">Envíanos un mensaje</h2>
           <form id="contact-form" class="space-y-6">
-             {/* Campos del formulario */}
              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div> <label for="name" class="block text-sm font-semibold text-gray-900 mb-2">Nombre</label> <input type="text" id="name" name="name" required placeholder="Tu nombre" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-ac-blue transition-all"/> </div>
                 <div> <label for="phone" class="block text-sm font-semibold text-gray-900 mb-2">Teléfono</label> <input type="tel" id="phone" name="phone" required placeholder="+56 9 1234 5678" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-ac-blue transition-all"/> </div>
@@ -157,7 +157,7 @@ const locations = [
           </form>
         </div>
 
-        {/* --- Columna Derecha: Secciones Adicionales --- */}
+        {/* --- Columna Derecha: Secciones Adicionales (Restauradas) --- */}
         <div class="space-y-8">
             {/* Contacto Directo */}
             <div>
@@ -181,9 +181,10 @@ const locations = [
                 </ul>
             </div>
         </div>
+        {/* --- Fin Columna Derecha --- */}
       </div>
 
-      {/* --- Sucursales --- */}
+      {/* --- Sucursales (Restauradas) --- */}
       <div class="text-center mb-12 mt-20">
          <h2 class="text-3xl font-bold text-gray-900">Nuestras Sucursales</h2>
       </div>
@@ -195,17 +196,16 @@ const locations = [
                     <p class="text-gray-600 flex items-start"><i class="fas fa-map-marker-alt text-ac-blue mt-1 mr-2"></i>{loc.address}</p>
                 </div>
                 <div class="aspect-w-16 aspect-h-9 bg-gray-200">
-                    {/* Renderizado condicional del mapa (requiere URLs válidas) */}
-                    {loc.mapSrc && loc.mapSrc.startsWith('http://googleusercontent.com/maps/embed') ? (
+                    {/* Renderizado condicional del mapa */}
+                    {loc.mapSrc && (loc.mapSrc.startsWith('http') || loc.mapSrc.startsWith('www')) && !loc.mapSrc.includes('URL_DE_EMBED') ? (
                          <iframe src={loc.mapSrc} width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title={`Mapa de ${loc.name}`}></iframe>
                      ) : (
                          <div class="w-full h-[300px] flex items-center justify-center bg-gray-100">
                              <p class="text-gray-500 text-sm px-4 text-center">
-                                {/* Mensaje de error mejorado */}
-                                {loc.mapSrc.includes('URL_DE_EMBED_')
+                                 {loc.mapSrc.includes('URL_DE_EMBED')
                                     ? `Obtén la URL de "Insertar Mapa" en Google Maps para ${loc.name} y pégala.`
                                     : "URL del mapa inválida."
-                                }
+                                 }
                              </p>
                          </div>
                      )
