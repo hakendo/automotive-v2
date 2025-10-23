@@ -3,64 +3,113 @@ import { Resend } from "resend";
 
 export const prerender = false;
 
-const resend = new Resend(import.meta.env.RESEND_API_KEY);
+// Variables de entorno
+const resendApiKey = import.meta.env.RESEND_API_KEY;
+const hcaptchaSecretKey = import.meta.env.HCAPTCHA_SECRET_KEY;
+const recipientEmail = 'roco.solange@automotiveconsulting.cl';
+const ccEmail = 'maravena@eserp.cl';
 
+// Verificaciones de inicio
+if (!resendApiKey) console.error("FATAL: Variable RESEND_API_KEY no configurada.");
+if (!hcaptchaSecretKey) console.error("FATAL: Variable HCAPTCHA_SECRET_KEY no configurada.");
+
+const resend = resendApiKey ? new Resend(resendApiKey) : null;
+
+// Helper para validar email
+function isValidEmail(email: string | null | undefined): email is string {
+    if (!email || typeof email !== 'string') return false;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// Endpoint POST
 export const POST: APIRoute = async ({ request }) => {
+  console.log("API Endpoint /api/send-email alcanzado (esperando JSON).");
+
+  if (!resend || !hcaptchaSecretKey) {
+      console.error("Error: Falta configuración de Resend o hCaptcha.");
+      return new Response(JSON.stringify({ success: false, message: 'Error de configuración del servidor.' }), { status: 500, headers: { "Content-Type": "application/json" }});
+  }
+
   try {
+    // 1. Leer cuerpo como JSON (Método Wildcars)
     const data = await request.json();
-    const { name, email, phone, message, plate, saleType } = data;
+    console.log("Datos JSON recibidos:", data);
 
-    // Construir el HTML del correo, incluyendo los campos opcionales si existen
-    let htmlContent = `
-      <h2>Nuevo mensaje de contacto sitio web</h2>
-      <p><strong>Nombre:</strong> ${name}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Teléfono:</strong> ${phone}</p>
-    `;
+    const { name, email, phone, message } = data;
+    const hcaptchaToken = data['h-captcha-response']; // Token de hCaptcha desde JSON
 
-    // Añadir campos opcionales solo si existen
-    if (plate) {
-      htmlContent += `<p><strong>Patente:</strong> ${plate}</p>`;
+    // 2. Verificación de hCaptcha
+    if (!hcaptchaToken) {
+        console.log("Error: Token hCaptcha faltante en JSON.");
+        return new Response(JSON.stringify({ success: false, message: 'Verificación CAPTCHA es requerida.' }), { status: 400, headers: { "Content-Type": "application/json" } });
+    }
+    
+    const verifyParams = new URLSearchParams();
+    verifyParams.append('secret', hcaptchaSecretKey);
+    verifyParams.append('response', hcaptchaToken);
+    const hcaptchaVerifyUrl = 'https://api.hcaptcha.com/siteverify';
+    let hcaptchaData: { success: boolean; 'error-codes'?: string[] };
+
+    try {
+        const hcaptchaResponse = await fetch(hcaptchaVerifyUrl, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: verifyParams.toString() });
+        if (!hcaptchaResponse.ok) throw new Error(`Error del servidor hCaptcha: ${hcaptchaResponse.statusText}`);
+        hcaptchaData = await hcaptchaResponse.json();
+        console.log("Respuesta de hCaptcha:", hcaptchaData);
+    } catch (fetchError) {
+        console.error('Error al contactar servidor hCaptcha:', fetchError);
+        return new Response(JSON.stringify({ success: false, message: 'No se pudo verificar el CAPTCHA.' }), { status: 500, headers: { "Content-Type": "application/json" } });
     }
 
-    if (saleType) {
-      const saleTypeText =
-        saleType === "consignacion" ? "Consignación" : "Venta directa";
-      htmlContent += `<p><strong>Tipo de venta:</strong> ${saleTypeText}</p>`;
+    if (!hcaptchaData.success) {
+      console.error('Fallo en la verificación de hCaptcha:', hcaptchaData['error-codes']);
+      const errorMsg = hcaptchaData['error-codes']?.includes('invalid-input-response') ? 'Verificación CAPTCHA inválida o expirada.' : 'Fallo en la verificación CAPTCHA.';
+      return new Response(JSON.stringify({ success: false, message: errorMsg }), { status: 400, headers: { "Content-Type": "application/json" } });
+    }
+    console.log("Verificación hCaptcha exitosa.");
+    
+    // 3. Validaciones de campos
+    if (!name || typeof name !== 'string' || name.trim() === '' ||
+        !message || typeof message !== 'string' || message.trim() === '') {
+       console.error("Error: Nombre o Mensaje faltante/inválido en JSON.");
+       return new Response(JSON.stringify({ success: false, message: 'Nombre y Mensaje son requeridos.' }), { status: 400, headers: { "Content-Type": "application/json" } });
+   }
+    if (!isValidEmail(email)) {
+       console.error("Error: Email faltante o inválido en JSON:", email);
+        return new Response(JSON.stringify({ success: false, message: 'Correo electrónico inválido o faltante.' }), { status: 400, headers: { "Content-Type": "application/json" } });
     }
 
-    // Añadir el mensaje
-    htmlContent += `
-      <p><strong>Mensaje:</strong></p>
-      <p>${message}</p>
-    `;
+    // 4. Construir y enviar correo
+    const emailSubject = `Nuevo Contacto Web - Automotive Consulting`;
+    let htmlContent = `<h1>Nuevo mensaje de contacto sitio web</h1><p><strong>Nombre:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p>${phone ? `<p><strong>Teléfono:</strong> ${phone}</p>` : ''}<hr><p><strong>Mensaje:</strong></p><p>${message.replace(/\n/g, '<br>')}</p>`;
 
-    const { data: emailData, error } = await resend.emails.send({
-      from: "onboarding@resend.dev",
-      to: ["roco.solange@automotiveconsulting"],
-      cc: ["maravena@eserp.cl"], // cambiar por el email de la empresa
-      subject: `(Sitio web) Nuevo mensaje de contacto de ${name}`,
+    console.log("Intentando enviar correo a:", recipientEmail);
+    const { data: emailData, error: sendError } = await resend.emails.send({
+      from: "Web Automotive Consulting <onboarding@resend.dev>",
+      to: [recipientEmail],
+      cc: [ccEmail],
+      subject: emailSubject,
       html: htmlContent,
+      headers: { 'Reply-To': email }
     });
 
-    if (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+    if (sendError) {
+       console.error("Resend Error:", sendError);
+       const resendErrorMessage = (sendError as any)?.message || "Hubo un problema al enviar tu mensaje.";
+       return new Response(JSON.stringify({ success: false, message: resendErrorMessage }), { status: 500, headers: { "Content-Type": "application/json" } });
     }
 
-    return new Response(JSON.stringify({ success: true, data: emailData }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    return new Response(
-      JSON.stringify({ error: "Error interno del servidor" }),
-      {
-        status: 500,
+    console.log('Correo enviado con éxito, ID:', emailData?.id);
+    return new Response(JSON.stringify({ success: true, message: 'Mensaje enviado con éxito.' }), {
+        status: 200,
         headers: { "Content-Type": "application/json" },
-      }
-    );
+    });
+
+  } catch (error) {
+     console.error("Error general en API Route:", error);
+     const message = error instanceof SyntaxError ? "Error en el formato de los datos enviados." : "Ocurrió un error inesperado en el servidor.";
+     return new Response(JSON.stringify({ success: false, message }), {
+         status: error instanceof SyntaxError ? 400 : 500,
+         headers: { "Content-Type": "application/json" },
+     });
   }
 };
