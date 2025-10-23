@@ -33,30 +33,58 @@ const locations = [
     <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
     {/* Script onSubmit adaptado */}
     <script define:vars={{ keyHcaptcha }}>
-      document.addEventListener('DOMContentLoaded', () => {
+      // Función para cargar hCaptcha
+      function loadHcaptcha() {
+        return new Promise((resolve, reject) => {
+          if (window.hcaptcha) {
+            resolve(window.hcaptcha);
+            return;
+          }
+          
+          const script = document.createElement('script');
+          script.src = 'https://js.hcaptcha.com/1/api.js?render=explicit';
+          script.async = true;
+          script.defer = true;
+          
+          script.onload = () => {
+            if (window.hcaptcha) {
+              resolve(window.hcaptcha);
+            } else {
+              reject(new Error('hCaptcha failed to load'));
+            }
+          };
+          
+          script.onerror = () => {
+            reject(new Error('Failed to load hCaptcha script'));
+          };
+          
+          document.head.appendChild(script);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', async () => {
         const form = document.getElementById('contact-form');
         const formStatus = document.getElementById('form-status');
         const statusText = formStatus?.querySelector('p');
-        const inputs = form?.querySelectorAll('input, textarea');
-
-        if (!form || !formStatus || !statusText) {
+        const captchaContainer = document.getElementById('captcha-container');
+        
+        if (!form || !formStatus || !statusText || !captchaContainer) {
             console.error("Error: Elementos del formulario no encontrados.");
             return;
         }
 
-        // Validación en tiempo real
-        inputs?.forEach(input => {
-            input.addEventListener('input', (e) => {
-                const target = e.target;
-                if (target.validity.valid) {
-                    target.classList.remove('border-red-500');
-                    target.classList.add('border-gray-200');
-                } else {
-                    target.classList.remove('border-gray-200');
-                    target.classList.add('border-red-500');
-                }
-            });
-        });
+        // Inicializar hCaptcha
+        try {
+          const hcaptcha = await loadHcaptcha();
+          window.hcaptchaId = hcaptcha.render(captchaContainer, {
+            sitekey: keyHcaptcha,
+            theme: 'light',
+            size: 'normal'
+          });
+        } catch (error) {
+          console.error('Error loading hCaptcha:', error);
+          captchaContainer.innerHTML = '<p class="text-red-600 text-center">Error al cargar el captcha. Por favor, recarga la página.</p>';
+        }
 
         // Función para mostrar mensajes de estado
         function showStatus(message, type = 'info') {
@@ -77,21 +105,35 @@ const locations = [
             statusText.textContent = message;
         }
 
+        // Función para mostrar mensajes de estado
+        function showStatus(message, type = 'info') {
+          if (!formStatus || !statusText) return;
+          
+          formStatus.classList.remove('hidden', 'bg-green-100', 'bg-red-100', 'bg-blue-100');
+          statusText.classList.remove('text-green-600', 'text-red-600', 'text-blue-600');
+          
+          const bgClass = type === 'success' ? 'bg-green-100' : type === 'error' ? 'bg-red-100' : 'bg-blue-100';
+          const textClass = type === 'success' ? 'text-green-600' : type === 'error' ? 'text-red-600' : 'text-blue-600';
+          
+          formStatus.classList.add(bgClass);
+          statusText.classList.add(textClass);
+          statusText.textContent = message;
+        }
+
         form.addEventListener('submit', async (e) => {
           e.preventDefault();
 
-          // Validar formulario nativo
+          // Validar formulario
           if (!form.checkValidity()) {
-              showStatus('Por favor, completa todos los campos correctamente.', 'error');
-              return;
+            showStatus('Por favor, completa todos los campos correctamente.', 'error');
+            return;
           }
 
-          // Obtener respuesta de hCaptcha
-          const hcaptchaResponse = window.hcaptcha?.getResponse();
-          
-          if (!hcaptchaResponse) {
-              showStatus('Por favor, completa la verificación de seguridad.', 'error');
-              return;
+          // Verificar hCaptcha
+          const response = window.hcaptcha?.getResponse(window.hcaptchaId);
+          if (!response) {
+            showStatus('Por favor, completa la verificación de seguridad.', 'error');
+            return;
           }
 
           if (!hcaptchaResponse) {
@@ -183,7 +225,6 @@ const locations = [
                         name="name" 
                         required 
                         minlength="2"
-                        pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+"
                         placeholder="Tu nombre completo" 
                         class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00B4D8] transition-all"
                     />
@@ -195,7 +236,6 @@ const locations = [
                         id="phone" 
                         name="phone" 
                         required 
-                        pattern="[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}"
                         placeholder="+56 9 1234 5678" 
                         class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00B4D8] transition-all"
                     />
@@ -203,12 +243,11 @@ const locations = [
              </div>
              <div>
                 <label for="email" class="block text-sm font-semibold text-gray-900 mb-2">Email</label>
-                <input 
+                    <input 
                     type="email" 
                     id="email" 
                     name="email" 
                     required 
-                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                     placeholder="tu@email.com" 
                     class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00B4D8] transition-all"
                 />
@@ -229,18 +268,7 @@ const locations = [
 
             {/* Widget hCaptcha */}
             <div class="w-full">
-              <div class="flex justify-center w-full" id="captcha-container">
-                {keyHcaptcha ? (
-                  <div 
-                    class="h-captcha" 
-                    data-sitekey={keyHcaptcha}
-                    data-theme="light"
-                    data-size="normal"
-                  ></div>
-                ) : (
-                  <p class="text-red-600 text-center font-medium">Error: CAPTCHA no configurado.</p>
-                )}
-              </div>
+              <div class="flex justify-center w-full" id="captcha-container"></div>
             </div>
             {/* Mensaje de Estado */}
             <div id="form-status" class="hidden mt-4 p-4 rounded-lg" aria-live="polite">
