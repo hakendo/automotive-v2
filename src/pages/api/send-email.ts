@@ -6,14 +6,25 @@ export const prerender = false;
 // Variables de entorno
 const resendApiKey = import.meta.env.RESEND_API_KEY;
 const hcaptchaSecretKey = import.meta.env.HCAPTCHA_SECRET_KEY;
-const recipientEmail = 'roco.solange@automotiveconsulting.cl';
-const ccEmail = 'maravena@eserp.cl';
+const recipientEmail = "roco.solange@automotiveconsulting.cl";
+const ccEmail = "maravena@eserp.cl";
 
 // Verificaciones de inicio
 if (!resendApiKey) console.error("FATAL: Variable RESEND_API_KEY no configurada.");
 if (!hcaptchaSecretKey) console.error("FATAL: Variable HCAPTCHA_SECRET_KEY no configurada.");
 
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
+
+const sanitize = (value: unknown) => {
+  if (typeof value !== "string") return "";
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+    .trim();
+};
 
 // Helper para validar email
 function isValidEmail(email: string | null | undefined): email is string {
@@ -35,8 +46,8 @@ export const POST: APIRoute = async ({ request }) => {
     const data = await request.json();
     console.log("Datos JSON recibidos:", data);
 
-    const { name, email, phone, message } = data;
-    const hcaptchaToken = data['h-captcha-response']; // Token de hCaptcha desde JSON
+    const { name, email, phone, message } = data ?? {};
+    const hcaptchaToken = data?.['h-captcha-response'];
 
     // 2. Verificación de hCaptcha
     if (!hcaptchaToken) {
@@ -80,7 +91,20 @@ export const POST: APIRoute = async ({ request }) => {
 
     // 4. Construir y enviar correo
     const emailSubject = `Nuevo Contacto Web - Automotive Consulting`;
-    let htmlContent = `<h1>Nuevo mensaje de contacto sitio web</h1><p><strong>Nombre:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p>${phone ? `<p><strong>Teléfono:</strong> ${phone}</p>` : ''}<hr><p><strong>Mensaje:</strong></p><p>${message.replace(/\n/g, '<br>')}</p>`;
+    const safeName = sanitize(name);
+    const safeEmail = sanitize(email);
+    const safePhone = sanitize(phone);
+    const safeMessage = sanitize(message).replace(/\n/g, '<br>');
+
+    const htmlContent = `
+      <h1>Nuevo mensaje de contacto sitio web</h1>
+      <p><strong>Nombre:</strong> ${safeName}</p>
+      <p><strong>Email:</strong> ${safeEmail}</p>
+      ${safePhone ? `<p><strong>Teléfono:</strong> ${safePhone}</p>` : ''}
+      <hr>
+      <p><strong>Mensaje:</strong></p>
+      <p>${safeMessage}</p>
+    `;
 
         console.log("Intentando enviar correo a:", recipientEmail);
         // El SDK de Resend puede devolver la respuesta directamente o lanzar excepción.
@@ -89,10 +113,10 @@ export const POST: APIRoute = async ({ request }) => {
             sendResult = await resend.emails.send({
                 from: "Web Automotive Consulting <onboarding@resend.dev>",
                 to: [recipientEmail],
-                cc: [ccEmail],
+                ...(ccEmail ? { cc: [ccEmail] } : {}),
                 subject: emailSubject,
                 html: htmlContent,
-                headers: { 'Reply-To': email }
+                headers: { 'Reply-To': safeEmail || recipientEmail }
             });
         } catch (err) {
             console.error("Resend SDK error:", err);
