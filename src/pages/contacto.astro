@@ -29,23 +29,36 @@ const locations = [
   image="/image-service-01.webp"
 >
   <Fragment slot="head">
-    {/* Script hCaptcha */}
-    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-    {/* Script onSubmit adaptado */}
+    {/* Script para manejar envío y validaciones del formulario */}
     <script define:vars={{ keyHcaptcha }}>
-      // Función para cargar hCaptcha
+      const HCAPTCHA_SRC = 'https://js.hcaptcha.com/1/api.js?render=explicit';
+
       function loadHcaptcha() {
+        if (window.hcaptcha) {
+          return Promise.resolve(window.hcaptcha);
+        }
+
+        const existingScript = document.querySelector('script[data-hcaptcha-loader="true"]');
+        if (existingScript) {
+          return new Promise((resolve, reject) => {
+            existingScript.addEventListener('load', () => {
+              if (window.hcaptcha) {
+                resolve(window.hcaptcha);
+              } else {
+                reject(new Error('hCaptcha failed to initialize after load event.'));
+              }
+            });
+            existingScript.addEventListener('error', () => reject(new Error('Failed to load hCaptcha script')));
+          });
+        }
+
         return new Promise((resolve, reject) => {
-          if (window.hcaptcha) {
-            resolve(window.hcaptcha);
-            return;
-          }
-          
           const script = document.createElement('script');
-          script.src = 'https://js.hcaptcha.com/1/api.js?render=explicit';
+          script.src = HCAPTCHA_SRC;
           script.async = true;
           script.defer = true;
-          
+          script.dataset.hcaptchaLoader = 'true';
+
           script.onload = () => {
             if (window.hcaptcha) {
               resolve(window.hcaptcha);
@@ -53,11 +66,9 @@ const locations = [
               reject(new Error('hCaptcha failed to load'));
             }
           };
-          
-          script.onerror = () => {
-            reject(new Error('Failed to load hCaptcha script'));
-          };
-          
+
+          script.onerror = () => reject(new Error('Failed to load hCaptcha script'));
+
           document.head.appendChild(script);
         });
       }
@@ -67,16 +78,48 @@ const locations = [
         const formStatus = document.getElementById('form-status');
         const statusText = formStatus?.querySelector('p');
         const captchaContainer = document.getElementById('captcha-container');
-        
+
         if (!form || !formStatus || !statusText || !captchaContainer) {
-            console.error("Error: Elementos del formulario no encontrados.");
-            return;
+          console.error('Error: Elementos del formulario no encontrados.');
+          return;
         }
 
-        // Inicializar hCaptcha
+        let hcaptchaWidgetId = null;
+
+        function disableFormControls(disabled) {
+          form.querySelectorAll('input, textarea, button').forEach((el) => {
+            if (disabled) {
+              el.setAttribute('disabled', 'true');
+            } else {
+              el.removeAttribute('disabled');
+            }
+          });
+        }
+
+        function showStatus(message, type = 'info') {
+          if (!formStatus || !statusText) return;
+
+          formStatus.classList.remove('hidden', 'bg-green-100', 'bg-red-100', 'bg-blue-100');
+          statusText.classList.remove('text-green-600', 'text-red-600', 'text-blue-600');
+
+          const bgClass = type === 'success' ? 'bg-green-100' : type === 'error' ? 'bg-red-100' : 'bg-blue-100';
+          const textClass = type === 'success' ? 'text-green-600' : type === 'error' ? 'text-red-600' : 'text-blue-600';
+
+          formStatus.classList.add(bgClass);
+          statusText.classList.add(textClass);
+          statusText.textContent = message;
+        }
+
+        if (!keyHcaptcha) {
+          console.error('Error: Falta la clave pública de hCaptcha (PUBLIC_HCAPTCHA_SITE_KEY).');
+          disableFormControls(true);
+          showStatus('No se pudo cargar la verificación de seguridad. Intenta nuevamente más tarde.', 'error');
+          return;
+        }
+
         try {
           const hcaptcha = await loadHcaptcha();
-          window.hcaptchaId = hcaptcha.render(captchaContainer, {
+          hcaptchaWidgetId = hcaptcha.render(captchaContainer, {
             sitekey: keyHcaptcha,
             theme: 'light',
             size: 'normal'
@@ -84,115 +127,61 @@ const locations = [
         } catch (error) {
           console.error('Error loading hCaptcha:', error);
           captchaContainer.innerHTML = '<p class="text-red-600 text-center">Error al cargar el captcha. Por favor, recarga la página.</p>';
-        }
-
-        // Función para mostrar mensajes de estado
-        function showStatus(message, type = 'info') {
-            formStatus.classList.remove('hidden', 'bg-green-100', 'bg-red-100', 'bg-gray-100');
-            statusText.classList.remove('text-green-600', 'text-red-600', 'text-gray-600');
-            
-            if (type === 'success') {
-                formStatus.classList.add('bg-green-100');
-                statusText.classList.add('text-green-600');
-            } else if (type === 'error') {
-                formStatus.classList.add('bg-red-100');
-                statusText.classList.add('text-red-600');
-            } else {
-                formStatus.classList.add('bg-gray-100');
-                statusText.classList.add('text-gray-600');
-            }
-            
-            statusText.textContent = message;
-        }
-
-        // Función para mostrar mensajes de estado
-        function showStatus(message, type = 'info') {
-          if (!formStatus || !statusText) return;
-          
-          formStatus.classList.remove('hidden', 'bg-green-100', 'bg-red-100', 'bg-blue-100');
-          statusText.classList.remove('text-green-600', 'text-red-600', 'text-blue-600');
-          
-          const bgClass = type === 'success' ? 'bg-green-100' : type === 'error' ? 'bg-red-100' : 'bg-blue-100';
-          const textClass = type === 'success' ? 'text-green-600' : type === 'error' ? 'text-red-600' : 'text-blue-600';
-          
-          formStatus.classList.add(bgClass);
-          statusText.classList.add(textClass);
-          statusText.textContent = message;
+          return;
         }
 
         form.addEventListener('submit', async (e) => {
           e.preventDefault();
 
-          // Validar formulario
           if (!form.checkValidity()) {
+            form.reportValidity();
             showStatus('Por favor, completa todos los campos correctamente.', 'error');
             return;
           }
 
-          // Verificar hCaptcha
-          const response = window.hcaptcha?.getResponse(window.hcaptchaId);
-          if (!response) {
+          const hcaptchaResponse = window.hcaptcha?.getResponse(hcaptchaWidgetId ?? undefined);
+          if (!hcaptchaResponse) {
             showStatus('Por favor, completa la verificación de seguridad.', 'error');
             return;
           }
 
-          if (!hcaptchaResponse) {
-            formStatus.classList.remove('hidden');
-            statusText.textContent = 'Por favor, completa la verificación de seguridad.';
-            statusText.className = 'mt-4 text-center font-medium text-red-600';
-            return;
-          }
-
-          // 2. Crear objeto JSON (Método Wildcars)
           const formData = new FormData(form);
-          const data = Object.fromEntries(formData.entries());
-          data['h-captcha-response'] = hcaptchaResponse; // Añadir token
+          const payload = Object.fromEntries(formData.entries());
+          payload['h-captcha-response'] = hcaptchaResponse;
 
-          // 3. Deshabilitar formulario
           const submitButton = form.querySelector('button[type="submit"]');
           const originalText = submitButton ? submitButton.textContent : '';
-          form.querySelectorAll('input, textarea, button').forEach(el => el.setAttribute('disabled', 'true'));
+          disableFormControls(true);
           if (submitButton) submitButton.textContent = 'Enviando...';
-          formStatus.classList.remove('hidden');
-          statusText.textContent = 'Enviando mensaje...';
-          statusText.className = 'mt-4 text-center font-medium text-gray-600';
+          showStatus('Enviando mensaje...', 'info');
 
           try {
-            // 4. Enviar como JSON (Método Wildcars)
-            const response = await fetch('/api/send-email', {
+            const fetchResponse = await fetch('/api/send-email', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(data),
+              body: JSON.stringify(payload)
             });
 
-            const result = await response.json().catch(() => ({ 
-                success: false, 
-                message: 'Respuesta inválida del servidor.' 
-            }));
+            const result = await fetchResponse.json().catch(() => ({ success: false, message: 'Respuesta inválida del servidor.' }));
 
-            if (!response.ok || result.success === false) {
-                throw new Error(result.message || `Error del servidor (${response.status})`);
+            if (!fetchResponse.ok || !result.success) {
+              throw new Error(result.message || `Error del servidor (${fetchResponse.status})`);
             }
 
-            // Éxito
             form.reset();
-            window.hcaptcha?.reset();
+            if (typeof window.hcaptcha?.reset === 'function') {
+              window.hcaptcha.reset(hcaptchaWidgetId ?? undefined);
+            }
             showStatus('¡Mensaje enviado con éxito! Te contactaremos pronto.', 'success');
-            
-            // Ocultar mensaje después de 5 segundos
             setTimeout(() => {
-                formStatus.classList.add('hidden');
+              formStatus.classList.add('hidden');
             }, 5000);
-
           } catch (error) {
-            // Error
-            try { if (widgetId !== undefined) hc.reset(widgetId); else hc.reset(); } catch (e) { /* ignore */ }
-            console.error("Error al enviar formulario:", error);
-            statusText.textContent = `Error: ${error.message || 'Intenta nuevamente.'}`;
-            statusText.className = 'mt-4 text-center font-medium text-red-600';
+            console.error('Error al enviar formulario:', error);
+            const errorMessage = error instanceof Error ? error.message : 'Intenta nuevamente.';
+            showStatus(`Error: ${errorMessage}`, 'error');
           } finally {
-            // Habilitar
-            form.querySelectorAll('input, textarea, button').forEach(el => el.removeAttribute('disabled'));
+            disableFormControls(false);
             if (submitButton) submitButton.textContent = originalText;
           }
         });
