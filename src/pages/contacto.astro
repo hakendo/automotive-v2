@@ -1,396 +1,303 @@
 ---
 import Layout from "../layouts/Layout.astro";
 
-const keyHcaptcha: string = import.meta.env.PUBLIC_HCAPTCHA_SITE_KEY ?? "";
-if (!keyHcaptcha) {
-  console.warn("Advertencia: PUBLIC_HCAPTCHA_SITE_KEY no configurada.");
-}
+const siteKey = import.meta.env.PUBLIC_HCAPTCHA_SITE_KEY ?? "";
 
-const contactChannels = [
+const contactInfo = [
   {
-    title: "Llámanos",
-    description: "Resolveremos tus preguntas de lunes a viernes.",
+    label: "Central",
     value: "+56 9 7622 5094",
     href: "tel:+56976225094",
-    icon: "fas fa-phone-alt",
+    icon: "fas fa-phone",
   },
   {
-    title: "Escríbenos",
-    description: "Responderemos tu consulta en menos de un día hábil.",
+    label: "Correo",
     value: "roco.solange@automotiveconsulting.cl",
     href: "mailto:roco.solange@automotiveconsulting.cl",
     icon: "fas fa-envelope",
   },
   {
-    title: "WhatsApp",
-    description: "Atención directa y seguimiento en vivo.",
-    value: "+56 9 7622 5094",
+    label: "WhatsApp",
+    value: "Chat inmediato",
     href: "https://wa.me/56976225094",
     icon: "fab fa-whatsapp",
-  },
-];
-
-const officeLocations = [
-  {
-    name: "Las Condes",
-    address: "Camino el Alba 8760, Oficina 304",
-    mapUrl:
-      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3328.357728379575!2d-70.54422302456122!3d-33.45984497338318!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9662cf1d36e4c7ed%3A0xbb5f9f4829b69f64!2sCam.%20El%20Alba%208760%2C%20Las%20Condes%2C%20Regi%C3%B3n%20Metropolitana%2C%20Chile!5e0!3m2!1ses-419!2scl!4v1730400000000!5m2!1ses-419!2scl",
-  },
-  {
-    name: "Macul",
-    address: "Auto Park, Av. Departamental 4400",
-    mapUrl:
-      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3331.122931836431!2d-70.59326312456411!3d-33.393758972863955!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9662cff1b982d7db%3A0x963c27d9c95605b4!2sAv.%20Departamental%204400%2C%20Macul%2C%20Regi%C3%B3n%20Metropolitana%2C%20Chile!5e0!3m2!1ses-419!2scl!4v1730400000001!5m2!1ses-419!2scl",
-  },
-  {
-    name: "Viña del Mar",
-    address: "Auto Park, Camino Internacional 3500",
-    mapUrl:
-      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3332.974939073879!2d-71.54062702456599!3d-33.34842647251844!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9689debf5d61c0ff%3A0x9ed0b9b0f2745078!2sCam.%20Internacional%203500%2C%20Vi%C3%B1a%20del%20Mar%2C%20Valpara%C3%ADso%2C%20Chile!5e0!3m2!1ses-419!2scl!4v1730400000002!5m2!1ses-419!2scl",
-  },
-];
-
-const faqs = [
-  {
-    question: "¿Cuánto tardan en responder los correos?",
-    answer: "Respondemos en menos de 24 horas hábiles y priorizamos los mensajes con teléfono para coordinar un llamado.",
-  },
-  {
-    question: "¿Puedo agendar una reunión presencial?",
-    answer: "Sí, deja tu mensaje con el horario ideal y confirmaremos la visita en cualquiera de nuestras sucursales.",
-  },
-  {
-    question: "¿Necesito adjuntar documentación?",
-    answer: "No es obligatorio en esta etapa. Tras recibir tu mensaje te indicaremos los documentos requeridos.",
   },
 ];
 ---
 
 <Layout
   title="Contacto | Automotive Consulting"
-  description="Envíanos tus dudas o cotiza la venta de tu vehículo con el equipo experto de Automotive Consulting."
+  description="Escríbenos y agenda una asesoría con Automotive Consulting."
   image="/image-service-01.webp"
 >
   <Fragment slot="head">
-    <script src="https://js.hcaptcha.com/1/api.js?render=explicit" async defer></script>
-    <script define:vars={{ keyHcaptcha }}>
+    <script define:vars={{ siteKey }}>
+      const HCAPTCHA_SRC = "https://js.hcaptcha.com/1/api.js?render=explicit";
+
       const loadHcaptcha = () => {
         if (window.hcaptcha) return Promise.resolve(window.hcaptcha);
         return new Promise((resolve, reject) => {
           const script = document.createElement("script");
-          script.src = "https://js.hcaptcha.com/1/api.js?render=explicit";
+          script.src = HCAPTCHA_SRC;
           script.async = true;
           script.defer = true;
           script.onload = () =>
             window.hcaptcha ? resolve(window.hcaptcha) : reject(new Error("hCaptcha no disponible"));
-          script.onerror = () => reject(new Error("No se pudo cargar hCaptcha"));
+          script.onerror = () => reject(new Error("No pudimos cargar hCaptcha"));
           document.head.appendChild(script);
         });
       };
 
-      const setStatus = (wrapper, textNode, message, type) => {
-        const backgrounds = ["bg-blue-50", "bg-green-50", "bg-red-50"];
-        const colors = ["text-blue-700", "text-green-700", "text-red-700"];
-        wrapper.classList.remove("hidden", ...backgrounds);
-        textNode.classList.remove(...colors);
-        if (type === "info") {
-          wrapper.classList.add("bg-blue-50");
-          textNode.classList.add("text-blue-700");
-        } else if (type === "success") {
-          wrapper.classList.add("bg-green-50");
-          textNode.classList.add("text-green-700");
-        } else {
-          wrapper.classList.add("bg-red-50");
-          textNode.classList.add("text-red-700");
-        }
-        textNode.textContent = message;
+      const toggleDisabled = (form, disabled) => {
+        form.querySelectorAll("input, textarea, button").forEach((el) => {
+          if (disabled) {
+            el.setAttribute("disabled", "true");
+          } else {
+            el.removeAttribute("disabled");
+          }
+        });
+      };
+
+      const setStatus = (element, message, type) => {
+        if (!element) return;
+        element.classList.remove("hidden", "bg-blue-50", "bg-green-50", "bg-red-50", "text-blue-700", "text-green-700", "text-red-700", "border-blue-200", "border-green-200", "border-red-200");
+
+        const typeToClasses = {
+          info: ["bg-blue-50", "text-blue-700", "border-blue-200"],
+          success: ["bg-green-50", "text-green-700", "border-green-200"],
+          error: ["bg-red-50", "text-red-700", "border-red-200"],
+        };
+
+        element.classList.add(...(typeToClasses[type] ?? typeToClasses.info));
+        element.querySelector("span").textContent = message;
       };
 
       document.addEventListener("DOMContentLoaded", async () => {
         const form = document.getElementById("contact-form");
         const statusBox = document.getElementById("form-status");
-        const statusText = statusBox?.querySelector("p") ?? null;
-        const captchaContainer = document.getElementById("captcha-container");
-        if (!form || !statusBox || !statusText || !captchaContainer) {
-          console.error("Formulario de contacto no disponible.");
+        const captchaSlot = document.getElementById("captcha-slot");
+
+        if (!form || !statusBox || !captchaSlot) {
+          console.error("No se encontró alguno de los elementos del formulario.");
+          return;
+        }
+
+        if (!siteKey) {
+          toggleDisabled(form, true);
+          setStatus(
+            statusBox,
+            "Falta configurar hCaptcha. Revisa la variable PUBLIC_HCAPTCHA_SITE_KEY.",
+            "error",
+          );
           return;
         }
 
         const params = new URLSearchParams(window.location.search);
         params.forEach((value, key) => {
-          const input = form.querySelector(`[name="${key}"]`);
-          if (input) input.value = value;
+          const field = form.querySelector(`[name="${key}"]`);
+          if (field && typeof value === "string") field.value = value;
         });
 
         let widgetId = null;
         try {
           const hcaptcha = await loadHcaptcha();
-          widgetId = hcaptcha.render(captchaContainer, {
-            sitekey: keyHcaptcha,
-            theme: "light",
-            size: "normal",
-          });
+          widgetId = hcaptcha.render(captchaSlot, { sitekey: siteKey, size: "normal" });
         } catch (error) {
-          captchaContainer.innerHTML =
-            '<p class="text-sm text-red-600 text-center">No pudimos cargar el captcha, recarga la página.</p>';
-          console.error(error);
+          console.error("No fue posible inicializar hCaptcha:", error);
+          toggleDisabled(form, true);
+          setStatus(statusBox, "No pudimos cargar la verificación de seguridad. Inténtalo más tarde.", "error");
           return;
         }
 
         form.addEventListener("submit", async (event) => {
           event.preventDefault();
-          if (!form.checkValidity()) {
-            setStatus(statusBox, statusText, "Revisa que todos los campos estén completos.", "error");
+          if (!form.reportValidity()) return;
+
+          const token = widgetId !== null ? window.hcaptcha?.getResponse(widgetId) : "";
+          if (!token) {
+            setStatus(statusBox, "Confirma que no eres un robot para continuar.", "error");
             return;
           }
 
-          const response = widgetId !== null ? window.hcaptcha?.getResponse(widgetId) : null;
-          if (!response) {
-            setStatus(statusBox, statusText, "Confirma que no eres un robot para continuar.", "error");
-            return;
-          }
+          const data = Object.fromEntries(new FormData(form).entries());
+          data["h-captcha-response"] = token;
 
-          const formData = new FormData(form);
-          const payload = Object.fromEntries(formData.entries());
-          payload["h-captcha-response"] = response;
-
-          const submitButton = form.querySelector('button[type="submit"]');
-          const originalText = submitButton?.textContent ?? "";
-          form.querySelectorAll("input, textarea, button").forEach((element) => element.setAttribute("disabled", "true"));
-          if (submitButton) submitButton.textContent = "Enviando...";
-          setStatus(statusBox, statusText, "Enviando tu mensaje...", "info");
+          toggleDisabled(form, true);
+          setStatus(statusBox, "Enviando mensaje...", "info");
 
           try {
-            const result = await fetch("/api/send-email", {
+            const response = await fetch("/api/send-email", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload),
+              body: JSON.stringify(data),
             });
 
-            const body = await result.json().catch(() => ({ success: false, message: "Respuesta inválida del servidor." }));
-            if (!result.ok || body.success === false) throw new Error(body.message ?? "No se pudo enviar el correo.");
+            const result = await response.json().catch(() => ({
+              success: false,
+              message: "Respuesta inválida del servidor.",
+            }));
+
+            if (!response.ok || result.success === false) {
+              throw new Error(result.message ?? "No fue posible enviar tu mensaje.");
+            }
 
             form.reset();
             if (widgetId !== null) window.hcaptcha?.reset(widgetId);
-            setStatus(statusBox, statusText, "Recibimos tu mensaje, te contactaremos pronto.", "success");
-            setTimeout(() => statusBox.classList.add("hidden"), 6000);
-          } catch (err) {
-            console.error(err);
-            setStatus(statusBox, statusText, err instanceof Error ? err.message : "Intenta nuevamente en unos minutos.", "error");
+            const name = typeof data.name === "string" ? data.name : "";
+            window.location.href = `/gracias?name=${encodeURIComponent(name)}`;
+          } catch (error) {
+            console.error("Error al enviar el formulario:", error);
+            const message =
+              error instanceof Error ? error.message : "Intenta nuevamente en unos minutos.";
+            setStatus(statusBox, message, "error");
             if (widgetId !== null) window.hcaptcha?.reset(widgetId);
           } finally {
-            form.querySelectorAll("input, textarea, button").forEach((element) => element.removeAttribute("disabled"));
-            if (submitButton) submitButton.textContent = originalText;
+            toggleDisabled(form, false);
           }
         });
       });
     </script>
   </Fragment>
 
-  <section class="bg-gray-900 text-white py-24">
-    <div class="max-w-6xl mx-auto px-6 lg:px-10 grid gap-12 lg:grid-cols-2 items-center">
-      <div>
-        <p class="uppercase tracking-[0.35em] text-xs text-gray-400 mb-4">Contacto</p>
-        <h1 class="text-4xl md:text-5xl font-bold mb-6">Hablemos de tu próximo automóvil o venta segura.</h1>
-        <p class="text-lg text-gray-200">
-          Completa el formulario y uno de nuestros especialistas se comunicará contigo para ayudarte a vender o comprar tu
-          próximo vehículo premium.
+  <section class="bg-gray-900 text-white">
+    <div class="max-w-5xl mx-auto px-6 py-20 lg:py-28 flex flex-col gap-10">
+      <div class="space-y-4 text-center md:text-left">
+        <p class="uppercase tracking-[0.45em] text-sm text-gray-400">Contacto</p>
+        <h1 class="text-4xl md:text-5xl font-semibold leading-tight">
+          Hablemos de tu próximo automóvil o venta segura
+        </h1>
+        <p class="text-gray-300 text-lg md:text-xl">
+          Completa el formulario y te responderemos en menos de 24 horas hábiles.
         </p>
-        <div class="mt-10 flex flex-wrap gap-6 text-sm text-gray-300">
-          <div>
-            <p class="font-semibold text-white">Horario</p>
-            <p>Lunes a Viernes, 09:00 - 19:00 hrs</p>
-          </div>
-          <div>
-            <p class="font-semibold text-white">Atención preferente</p>
-            <p>Respuestas en &lt; 24 hrs hábiles</p>
-          </div>
-        </div>
       </div>
-      <div class="bg-gray-800/50 border border-gray-700/60 rounded-2xl p-8 shadow-2xl">
-        <p class="text-sm uppercase tracking-widest text-gray-400 mb-4">Datos directos</p>
-        <div class="space-y-6">
-          <a href="tel:+56976225094" class="flex items-center gap-4 group">
-            <span class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-xl text-teal-300 group-hover:bg-white/20 transition">
-              <i class="fas fa-phone"></i>
-            </span>
-            <div>
-              <p class="text-xs uppercase tracking-widest text-gray-400">Central</p>
-              <p class="text-xl font-semibold group-hover:text-white transition">+56 9 7622 5094</p>
-            </div>
-          </a>
-          <a href="mailto:roco.solange@automotiveconsulting.cl" class="flex items-center gap-4 group">
-            <span class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-xl text-teal-300 group-hover:bg-white/20 transition">
-              <i class="fas fa-envelope"></i>
-            </span>
-            <div>
-              <p class="text-xs uppercase tracking-widest text-gray-400">Correo</p>
-              <p class="text-xl font-semibold group-hover:text-white transition">roco.solange@automotiveconsulting.cl</p>
-            </div>
-          </a>
-          <a href="https://wa.me/56976225094" target="_blank" rel="noreferrer noopener" class="flex items-center gap-4 group">
-            <span class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-xl text-teal-300 group-hover:bg-white/20 transition">
-              <i class="fab fa-whatsapp"></i>
-            </span>
-            <div>
-              <p class="text-xs uppercase tracking-widest text-gray-400">WhatsApp</p>
-              <p class="text-xl font-semibold group-hover:text-white transition">Chat inmediato</p>
-            </div>
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <section class="bg-white py-16">
-    <div class="max-w-6xl mx-auto px-6 lg:px-10">
-      <div class="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-        <div class="bg-white rounded-3xl shadow-xl p-8 md:p-10 border border-gray-100">
-          <div class="mb-10">
-            <p class="text-sm uppercase text-gray-500 tracking-[0.45em]">Escríbenos</p>
-            <h2 class="text-3xl md:text-4xl font-semibold text-gray-900 mt-3">Cuéntanos qué necesitas</h2>
-            <p class="text-gray-600 mt-4">
-              Los campos son obligatorios y protegidos con hCaptcha para evitar spam.
-            </p>
-          </div>
-          <form id="contact-form" class="space-y-6">
-            <div class="grid gap-6 md:grid-cols-2">
-              <label class="flex flex-col gap-2 text-sm font-medium text-gray-800">
-                Nombre completo
-                <input
-                  type="text"
-                  name="name"
-                  required
-                  minlength="2"
-                  autocomplete="name"
-                  placeholder="Ej. Catalina Gómez"
-                  class="rounded-xl border border-gray-200 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-teal-400 focus:border-transparent transition"
-                />
-              </label>
-              <label class="flex flex-col gap-2 text-sm font-medium text-gray-800">
-                Teléfono
-                <input
-                  type="tel"
-                  name="phone"
-                  required
-                  autocomplete="tel"
-                  placeholder="+56 9 1234 5678"
-                  class="rounded-xl border border-gray-200 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-teal-400 focus:border-transparent transition"
-                />
-              </label>
-            </div>
-            <label class="flex flex-col gap-2 text-sm font-medium text-gray-800">
-              Correo electrónico
-              <input
-                type="email"
-                name="email"
-                required
-                autocomplete="email"
-                placeholder="nombre@empresa.cl"
-                class="rounded-xl border border-gray-200 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-teal-400 focus:border-transparent transition"
-              />
-            </label>
-            <label class="flex flex-col gap-2 text-sm font-medium text-gray-800">
-              Mensaje
-              <textarea
-                name="message"
-                rows="5"
-                required
-                minlength="10"
-                maxlength="1200"
-                placeholder="Cuéntanos cómo podemos ayudarte"
-                class="rounded-xl border border-gray-200 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-teal-400 focus:border-transparent transition resize-none"
-              ></textarea>
-            </label>
-
-            <div class="space-y-4">
-              <div id="captcha-container" class="flex justify-center"></div>
-              <div id="form-status" class="hidden rounded-2xl px-4 py-3" aria-live="polite">
-                <p class="text-sm font-medium text-center"></p>
+      <div class="grid gap-6 sm:grid-cols-3">
+        {contactInfo.map((info) => (
+          <a
+            href={info.href}
+            class="group rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:bg-white/10"
+            target={info.href.startsWith("http") ? "_blank" : undefined}
+            rel="noreferrer noopener"
+          >
+            <div class="flex items-center gap-4">
+              <span class="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-lg text-teal-300 group-hover:bg-white/20">
+                <i class={info.icon}></i>
+              </span>
+              <div>
+                <p class="text-xs uppercase tracking-[0.35em] text-gray-400">{info.label}</p>
+                <p class="text-lg font-semibold text-white">{info.value}</p>
               </div>
             </div>
-
-            <button
-              type="submit"
-              class="w-full bg-gradient-to-r from-teal-500 to-blue-500 text-white font-semibold py-4 rounded-2xl shadow-lg shadow-teal-500/30 hover:from-teal-400 hover:to-blue-400 transition-all duration-300 focus:ring-4 focus:ring-teal-200"
-            >
-              Enviar mensaje
-            </button>
-          </form>
-        </div>
-
-        <div class="space-y-8">
-          <div class="bg-gray-900 text-white rounded-3xl p-8">
-            <p class="text-sm uppercase tracking-[0.45em] text-gray-400 mb-5">Canales</p>
-            <div class="space-y-6">
-              {contactChannels.map((item) => (
-                <a
-                  href={item.href}
-                  target={item.href.startsWith("http") ? "_blank" : "_self"}
-                  rel="noreferrer noopener"
-                  class="group flex items-start gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 hover:bg-white/10 transition"
-                >
-                  <span class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-lg text-teal-300 group-hover:bg-white/20">
-                    <i class={item.icon}></i>
-                  </span>
-                  <div>
-                    <p class="text-xs tracking-[0.35em] uppercase text-gray-400">{item.title}</p>
-                    <p class="text-lg font-semibold text-white">{item.value}</p>
-                    <p class="text-sm text-gray-300">{item.description}</p>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-
-          <div class="bg-white rounded-3xl shadow-lg p-8 border border-gray-100">
-            <p class="text-sm uppercase tracking-[0.45em] text-gray-500 mb-5">Preguntas frecuentes</p>
-            <div class="space-y-4">
-              {faqs.map((faq) => (
-                <details class="group rounded-2xl border border-gray-200 p-4 [&_summary]:cursor-pointer">
-                  <summary class="flex items-center justify-between gap-4 text-gray-900 font-semibold">
-                    <span>{faq.question}</span>
-                    <i class="fas fa-plus group-open:rotate-45 transition-transform"></i>
-                  </summary>
-                  <p class="mt-3 text-gray-600 text-sm leading-relaxed">{faq.answer}</p>
-                </details>
-              ))}
-            </div>
-          </div>
-        </div>
+          </a>
+        ))}
       </div>
     </div>
   </section>
 
-  <section class="bg-gray-50 py-20">
-    <div class="max-w-6xl mx-auto px-6 lg:px-10">
-      <div class="text-center mb-12">
-        <p class="text-sm uppercase tracking-[0.45em] text-gray-500">Nuestras sucursales</p>
-        <h2 class="text-3xl font-semibold text-gray-900 mt-3">Visítanos cuando quieras</h2>
-        <p class="text-gray-600 mt-3">
-          Agenda tu visita y te acompañaremos durante la inspección y tasación del vehículo.
-        </p>
-      </div>
-      <div class="grid gap-8 lg:grid-cols-3">
-        {officeLocations.map((office) => (
-          <div class="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100">
-            <div class="p-6 space-y-2">
-              <h3 class="text-xl font-semibold text-gray-900">{office.name}</h3>
-              <p class="text-gray-600">{office.address}</p>
-            </div>
-            <div class="aspect-[4/3] bg-gray-100">
-              <iframe
-                src={office.mapUrl}
-                loading="lazy"
-                allowfullscreen
-                referrerpolicy="no-referrer-when-downgrade"
-                class="w-full h-full border-0"
-                title={`Ubicación ${office.name}`}
-              ></iframe>
+  <section class="bg-white">
+    <div class="max-w-5xl mx-auto px-6 py-16 lg:py-20">
+      <div class="grid gap-16 lg:grid-cols-2">
+        <form id="contact-form" class="space-y-6 rounded-2xl border border-gray-100 p-8 shadow-lg">
+          <div class="space-y-3">
+            <h2 class="text-3xl font-semibold text-gray-900">Envíanos un mensaje</h2>
+            <p class="text-gray-600">
+              Todos los campos son obligatorios para poder atenderte correctamente.
+            </p>
+          </div>
+
+          <label class="flex flex-col gap-2 text-sm font-medium text-gray-800">
+            Nombre completo
+            <input
+              type="text"
+              name="name"
+              required
+              minlength="2"
+              autocomplete="name"
+              placeholder="Ej. Matías Aravena"
+              class="rounded-xl border border-gray-200 px-4 py-3 text-gray-900 transition focus:border-transparent focus:ring-2 focus:ring-teal-400"
+            />
+          </label>
+
+          <label class="flex flex-col gap-2 text-sm font-medium text-gray-800">
+            Teléfono
+            <input
+              type="tel"
+              name="phone"
+              required
+              autocomplete="tel"
+              placeholder="+56 9 1234 5678"
+              class="rounded-xl border border-gray-200 px-4 py-3 text-gray-900 transition focus:border-transparent focus:ring-2 focus:ring-teal-400"
+            />
+          </label>
+
+          <label class="flex flex-col gap-2 text-sm font-medium text-gray-800">
+            Correo electrónico
+            <input
+              type="email"
+              name="email"
+              required
+              autocomplete="email"
+              placeholder="nombre@empresa.cl"
+              class="rounded-xl border border-gray-200 px-4 py-3 text-gray-900 transition focus:border-transparent focus:ring-2 focus:ring-teal-400"
+            />
+          </label>
+
+          <label class="flex flex-col gap-2 text-sm font-medium text-gray-800">
+            Mensaje
+            <textarea
+              name="message"
+              rows="5"
+              required
+              minlength="10"
+              maxlength="1200"
+              placeholder="Cuéntanos cómo podemos ayudarte."
+              class="rounded-xl border border-gray-200 px-4 py-3 text-gray-900 transition focus:border-transparent focus:ring-2 focus:ring-teal-400 resize-none"
+            ></textarea>
+          </label>
+
+          <div class="space-y-4">
+            <div id="captcha-slot" class="flex justify-center"></div>
+            <div
+              id="form-status"
+              class="hidden rounded-xl border px-4 py-3 text-sm font-medium"
+              aria-live="polite"
+            >
+              <span></span>
             </div>
           </div>
-        ))}
+
+          <button
+            type="submit"
+            class="w-full rounded-xl bg-teal-500 px-4 py-3 text-base font-semibold text-white transition hover:bg-teal-400 focus:outline-none focus:ring-4 focus:ring-teal-200"
+          >
+            Enviar mensaje
+          </button>
+        </form>
+
+        <div class="space-y-8">
+          <div class="space-y-4">
+            <h3 class="text-2xl font-semibold text-gray-900">¿Qué pasa después?</h3>
+            <ul class="space-y-3 text-gray-600">
+              <li>• Revisamos tu mensaje y te respondemos en menos de 24 horas hábiles.</li>
+              <li>• Coordinamos una llamada o visita según tu preferencia.</li>
+              <li>• Acompañamos todo el proceso de compra o venta de tu vehículo.</li>
+            </ul>
+          </div>
+
+          <div class="space-y-4 rounded-2xl bg-gray-50 p-6 border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-900">Visítanos</h3>
+            <p class="text-gray-600">Camino El Alba 8760, oficina 304, Las Condes.</p>
+            <p class="text-gray-600">Horarios: Lunes a Viernes, 09:00 - 19:00 hrs.</p>
+            <a
+              href="https://maps.google.com/?q=Camino+El+Alba+8760,+Las+Condes"
+              target="_blank"
+              rel="noreferrer noopener"
+              class="inline-flex items-center gap-2 text-teal-600 font-medium hover:text-teal-500"
+            >
+              <i class="fas fa-map-marker-alt"></i> Abrir en Google Maps
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </section>

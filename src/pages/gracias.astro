@@ -1,0 +1,75 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const name = Astro.url.searchParams.get("name") ?? "";
+const firstName = name.trim().split(" ")[0] ?? "";
+---
+
+<Layout
+  title="Gracias por tu mensaje | Automotive Consulting"
+  description="Confirmación de contacto para Automotive Consulting."
+  image="/image-service-01.webp"
+>
+  <section class="bg-gray-900 text-white">
+    <div class="max-w-4xl mx-auto px-6 py-24 text-center space-y-6">
+      <span class="inline-flex items-center justify-center rounded-full bg-white/10 px-4 py-1 text-sm uppercase tracking-[0.4em] text-gray-300">
+        Mensaje enviado
+      </span>
+      <h1 class="text-4xl md:text-5xl font-semibold leading-tight">
+        ¡Gracias{firstName ? `, ${firstName}` : ""}! Tu mensaje ya está en nuestro equipo.
+      </h1>
+      <p class="text-lg text-gray-200">
+        Te contactaremos dentro de las próximas 24 horas hábiles para continuar con tu solicitud.
+        Si necesitas una respuesta urgente, llámanos al{" "}
+        <a href="tel:+56976225094" class="font-semibold text-teal-300 hover:text-teal-200">
+          +56 9 7622 5094
+        </a>.
+      </p>
+      <div class="flex flex-wrap justify-center gap-4 pt-4">
+        <a
+          href="/"
+          class="inline-flex items-center gap-2 rounded-xl bg-teal-500 px-5 py-3 font-semibold text-white transition hover:bg-teal-400"
+        >
+          <i class="fas fa-home"></i> Volver a inicio
+        </a>
+        <a
+          href="https://wa.me/56976225094"
+          target="_blank"
+          rel="noreferrer noopener"
+          class="inline-flex items-center gap-2 rounded-xl border border-white/20 px-5 py-3 font-semibold text-white transition hover:bg-white/10"
+        >
+          <i class="fab fa-whatsapp"></i> Contacto inmediato
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-white">
+    <div class="max-w-4xl mx-auto px-6 py-16 text-center space-y-8">
+      <h2 class="text-2xl font-semibold text-gray-900">¿Qué puedes esperar ahora?</h2>
+      <div class="grid gap-6 md:grid-cols-3 text-left text-gray-700">
+        <div class="space-y-2 rounded-2xl border border-gray-100 p-6">
+          <span class="text-teal-500 text-2xl font-semibold">01</span>
+          <p class="font-semibold text-gray-900">Confirmación por correo</p>
+          <p>Te enviaremos un mensaje al correo que nos indicaste para confirmar que recibimos tu solicitud.</p>
+        </div>
+        <div class="space-y-2 rounded-2xl border border-gray-100 p-6">
+          <span class="text-teal-500 text-2xl font-semibold">02</span>
+          <p class="font-semibold text-gray-900">Llamada con un asesor</p>
+          <p>Uno de nuestros especialistas te contactará para conocer tus necesidades y planificar los siguientes pasos.</p>
+        </div>
+        <div class="space-y-2 rounded-2xl border border-gray-100 p-6">
+          <span class="text-teal-500 text-2xl font-semibold">03</span>
+          <p class="font-semibold text-gray-900">Seguimiento personalizado</p>
+          <p>Te acompañamos en todo el proceso, ya sea para vender tu automóvil o encontrar el indicado.</p>
+        </div>
+      </div>
+      <p class="text-gray-600">
+        ¿No recibiste nuestro correo? Revisa tu carpeta de spam o escríbenos directamente a{" "}
+        <a href="mailto:roco.solange@automotiveconsulting.cl" class="font-semibold text-teal-600 hover:text-teal-500">
+          roco.solange@automotiveconsulting.cl
+        </a>.
+      </p>
+    </div>
+  </section>
+</Layout>

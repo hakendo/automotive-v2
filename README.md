@@ -83,6 +83,10 @@ RESEND_API_KEY="tu_resend_api_key_aqui"
 PUBLIC_HCAPTCHA_SITE_KEY="tu_hcaptcha_site_key_publico"
 HCAPTCHA_SECRET_KEY="tu_hcaptcha_secret_key_privado"
 
+# ❗ Importante
+# La clave pública se usa en el navegador y la clave secreta únicamente en el servidor.
+# Ambas deben configurarse en tu `.env` local y en Vercel → Settings → Environment Variables.
+
 # 🔑 Token de API (para datos de vehículos)
 PUBLIC_TOKEN="tu_public_token_aqui"
 ```
@@ -173,6 +177,7 @@ wildcars/
 - **Propósito**: Clave pública para renderizar el widget y clave secreta para verificar tokens server-side
 - **Obtener**: [hCaptcha Dashboard](https://dashboard.hcaptcha.com/sites)
 - **Formato**: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` (site) y `0x...` (secret)
+- **Tip**: El secret se encuentra en *Settings → API Keys → Secret key*. Debes copiarlo a `HCAPTCHA_SECRET_KEY` y subirlo también a Vercel.
 
 ### **PUBLIC_TOKEN**
 
