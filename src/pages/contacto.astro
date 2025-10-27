@@ -23,6 +23,27 @@ const contactInfo = [
     icon: "fab fa-whatsapp",
   },
 ];
+
+const branchLocations = [
+  {
+    name: "Sucursal Las Condes",
+    address: "Camino El Alba 8760, Oficina 304, Las Condes.",
+    mapSrc:
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3328.357728379575!2d-70.54422302456122!3d-33.45984497338318!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9662cf1d36e4c7ed%3A0xbb5f9f4829b69f64!2sCam.%20El%20Alba%208760%2C%20Las%20Condes%2C%20Regi%C3%B3n%20Metropolitana%2C%20Chile!5e0!3m2!1ses-419!2scl!4v1730400000000!5m2!1ses-419!2scl",
+  },
+  {
+    name: "Sucursal Macul",
+    address: "Auto Park, Av. Departamental 4400, Macul.",
+    mapSrc:
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3331.122931836431!2d-70.59326312456411!3d-33.393758972863955!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9662cff1b982d7db%3A0x963c27d9c95605b4!2sAv.%20Departamental%204400%2C%20Macul%2C%20Regi%C3%B3n%20Metropolitana%2C%20Chile!5e0!3m2!1ses-419!2scl!4v1730400000001!5m2!1ses-419!2scl",
+  },
+  {
+    name: "Sucursal Viña del Mar",
+    address: "Camino Internacional 3500, Viña del Mar.",
+    mapSrc:
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3332.974939073879!2d-71.54062702456599!3d-33.34842647251844!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9689debf5d61c0ff%3A0x9ed0b9b0f2745078!2sCam.%20Internacional%203500%2C%20Vi%C3%B1a%20del%20Mar%2C%20Valpara%C3%ADso%2C%20Chile!5e0!3m2!1ses-419!2scl!4v1730400000002!5m2!1ses-419!2scl",
+  },
+];
 ---
 
 <Layout
@@ -170,27 +191,6 @@ const contactInfo = [
           Completa el formulario y te responderemos en menos de 24 horas hábiles.
         </p>
       </div>
-
-      <div class="grid gap-6 sm:grid-cols-3">
-        {contactInfo.map((info) => (
-          <a
-            href={info.href}
-            class="group rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:bg-white/10"
-            target={info.href.startsWith("http") ? "_blank" : undefined}
-            rel="noreferrer noopener"
-          >
-            <div class="flex items-center gap-4">
-              <span class="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-lg text-teal-300 group-hover:bg-white/20">
-                <i class={info.icon}></i>
-              </span>
-              <div>
-                <p class="text-xs uppercase tracking-[0.35em] text-gray-400">{info.label}</p>
-                <p class="text-lg font-semibold text-white">{info.value}</p>
-              </div>
-            </div>
-          </a>
-        ))}
-      </div>
     </div>
   </section>
 
@@ -298,6 +298,72 @@ const contactInfo = [
             </a>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-gray-50">
+    <div class="max-w-6xl mx-auto px-6 py-20 space-y-10">
+      <div class="text-center space-y-3">
+        <p class="text-sm uppercase tracking-[0.45em] text-gray-500">Sucursales</p>
+        <h2 class="text-3xl font-semibold text-gray-900">Visítanos cuando quieras</h2>
+        <p class="text-gray-600">
+          Elige la sucursal que más te acomode y agenda una reunión con nuestro equipo.
+        </p>
+      </div>
+
+      <div class="grid gap-8 lg:grid-cols-3">
+        {branchLocations.map((branch) => (
+          <div class="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-lg">
+            <div class="p-6 space-y-2">
+              <h3 class="text-xl font-semibold text-gray-900">{branch.name}</h3>
+              <p class="text-gray-600">{branch.address}</p>
+            </div>
+            <div class="aspect-[4/3] bg-gray-100">
+              <iframe
+                src={branch.mapSrc}
+                loading="lazy"
+                allowfullscreen
+                referrerpolicy="no-referrer-when-downgrade"
+                class="h-full w-full border-0"
+                title={`Mapa ${branch.name}`}
+              ></iframe>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-gray-900 text-white">
+    <div class="max-w-5xl mx-auto px-6 py-16 space-y-6">
+      <div class="space-y-2 text-center">
+        <p class="text-sm uppercase tracking-[0.45em] text-gray-400">Contacto directo</p>
+        <h2 class="text-3xl font-semibold">¿Prefieres hablar de inmediato?</h2>
+        <p class="text-gray-300">
+          Usa cualquiera de estos canales y coordinaremos contigo el seguimiento.
+        </p>
+      </div>
+
+      <div class="grid gap-6 sm:grid-cols-3">
+        {contactInfo.map((info) => (
+          <a
+            href={info.href}
+            class="group rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:bg-white/10"
+            target={info.href.startsWith("http") ? "_blank" : undefined}
+            rel="noreferrer noopener"
+          >
+            <div class="flex items-center gap-4">
+              <span class="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-lg text-teal-300 group-hover:bg-white/20">
+                <i class={info.icon}></i>
+              </span>
+              <div>
+                <p class="text-xs uppercase tracking-[0.35em] text-gray-400">{info.label}</p>
+                <p class="text-lg font-semibold text-white">{info.value}</p>
+              </div>
+            </div>
+          </a>
+        ))}
       </div>
     </div>
   </section>
