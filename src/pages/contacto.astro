@@ -55,7 +55,7 @@ const branchLocations = [
   <Fragment slot="head">
     {recaptchaKey && (
       <script
-        src={`https://www.google.com/recaptcha/enterprise.js?render=${recaptchaKey}`}
+        src={`https://www.google.com/recaptcha/api.js?render=${recaptchaKey}`}
         async
         defer
       ></script>
@@ -138,7 +138,7 @@ const branchLocations = [
           toggleDisabled(form, true);
           showStatus("Verificando seguridad...", "info");
 
-          const recaptcha = window.grecaptcha?.enterprise;
+          const recaptcha = window.grecaptcha;
           if (!recaptcha) {
             showStatus("No pudimos cargar reCAPTCHA. Recarga la página.", "error");
             toggleDisabled(form, false);
