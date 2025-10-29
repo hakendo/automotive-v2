@@ -20,7 +20,7 @@
 🔍 **Búsqueda Inteligente** - Encuentra el vehículo perfecto rápidamente  
 📱 **Mobile-First** - Optimizado para dispositivos móviles  
 ⚡ **Carga Ultrarrápida** - Powered by Astro SSR  
-💌 **Sistema de Contacto** - Integración con Formspree para emails  
+💌 **Sistema de Contacto** - Backend propio con reCAPTCHA v2 y envío por Resend  
 🛡️ **Anti-Spam** - Protección con reCAPTCHA  
 🎯 **SEO Optimizado** - Mejor posicionamiento en buscadores  
 🤝 **Partner Confiable** - Más que una automotora, tu aliado automotriz
@@ -39,7 +39,7 @@
 
 ### **Backend & APIs**
 
-- **[Formspree](https://formspree.io/)** - Procesamiento de formularios y envío de correos
+- **[Resend](https://resend.com/)** - Envío de correos transaccionales
 - **[reCAPTCHA](https://developers.google.com/recaptcha)** - Protección anti-spam
 - **[Astro Node 9.3.0](https://docs.astro.build/en/guides/integrations-guide/node/)** - Servidor SSR
 
@@ -76,12 +76,12 @@ npm install
 Crea un archivo `.env` en la raíz del proyecto:
 
 ```env
-# 📧 Configuración de Formspree (para el formulario de contacto)
-PUBLIC_FORMSPREE_ENDPOINT="https://formspree.io/f/mblpdnon"
+# 🛡️ reCAPTCHA v2 (casilla de verificación)
+PUBLIC_RECAPTCHA_SITE_KEY="tu_site_key_recaptcha_v2"
+RECAPTCHA_SECRET_KEY="tu_secret_key_recaptcha_v2"
 
-# 🛡️ Protección reCAPTCHA (anti-spam)
-PUBLIC_RECAPTCHA_SITE_KEY="tu_site_key_recaptcha_v3"
-RECAPTCHA_SECRET_KEY="tu_secret_key_recaptcha_v3"
+# 💌 Envío de correos con Resend
+RESEND_API_KEY="tu_api_key_resend"
 
 # 🔑 Token de API (para datos de vehículos)
 PUBLIC_TOKEN="tu_public_token_aqui"
@@ -162,23 +162,23 @@ wildcars/
 
 ## 🌍 **Variables de Entorno**
 
-### **PUBLIC_FORMSPREE_ENDPOINT**
-
-- **Propósito**: URL del endpoint de Formspree que recibe las solicitudes del formulario.
-- **Obtener**: Panel de Formspree → Form → Integration → Form Endpoint.
-- **Formato**: `https://formspree.io/f/xxxxxxx`
-
 ### **PUBLIC_RECAPTCHA_SITE_KEY**
 
-- **Propósito**: Clave de sitio reCAPTCHA v3 usada para generar el token de verificación en el navegador.
+- **Propósito**: Clave pública de reCAPTCHA v2 (casilla de verificación) usada en el navegador.
 - **Obtener**: [Google reCAPTCHA Admin](https://www.google.com/recaptcha/admin/create)
 - **Formato**: `6Lxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
 
 ### **RECAPTCHA_SECRET_KEY**
 
-- **Propósito**: Clave secreta usada por el backend para validar los tokens reCAPTCHA antes de reenviar la solicitud a Formspree.
-- **Obtener**: Misma propiedad en Google reCAPTCHA, pestaña Integración → “Clave secreta heredada”.
+- **Propósito**: Clave secreta usada por el backend para validar los tokens reCAPTCHA v2.
+- **Obtener**: Misma propiedad en Google reCAPTCHA, pestaña Integración → “Clave secreta”.
 - **Formato**: `6Lxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
+
+### **RESEND_API_KEY**
+
+- **Propósito**: Envío de los correos de contacto desde el backend.
+- **Obtener**: [Resend Dashboard](https://resend.com/api-keys)
+- **Formato**: `re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
 
 ### **PUBLIC_TOKEN**
 
