@@ -4,7 +4,8 @@ import { Resend } from "resend";
 const recaptchaSecret = import.meta.env.RECAPTCHA_SECRET_KEY;
 const resendApiKey = import.meta.env.RESEND_API_KEY;
 
-const REQUIRED_FIELDS = ["name", "email", "message"] as const;
+const CONTACT_REQUIRED_FIELDS = ["name", "email", "message", "phone"] as const;
+const CONSIGNMENT_REQUIRED_FIELDS = ["name", "email", "phone", "carBrand", "carModel", "carYear", "carMileage"] as const;
 const RECIPIENTS = ["roco.solange@automotiveconsulting.cl", "maravena@eserp.cl"];
 const FROM_ADDRESS = "Automotive Consulting <noreply@automotiveconsulting.cl>";
 
@@ -71,7 +72,11 @@ export const POST: APIRoute = async ({ request }) => {
     const recaptchaResponse = await fetch("https://www.google.com/recaptcha/api/siteverify", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ secret: recaptchaSecret, response: token }).toString(),
+      body: new URLSearchParams({ 
+        secret: recaptchaSecret, 
+        response: token,
+        remoteip: request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown"
+      }).toString(),
     });
 
     const verification = (await recaptchaResponse.json()) as { success?: boolean; "error-codes"?: string[] };
@@ -91,12 +96,20 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const data = normalizePayload(payload);
+  
+  // Determinar qué campos son requeridos según el tipo de formulario
+  const requiredFields = data.formType === "consignacion" 
+    ? CONSIGNMENT_REQUIRED_FIELDS 
+    : CONTACT_REQUIRED_FIELDS;
 
-  for (const field of REQUIRED_FIELDS) {
+  for (const field of requiredFields) {
     const value = data[field];
     if (!value) {
       return new Response(
-        JSON.stringify({ success: false, message: `El campo ${field} es obligatorio.` }),
+        JSON.stringify({ 
+          success: false, 
+          message: `El campo ${field.replace(/([A-Z])/g, ' $1').toLowerCase()} es obligatorio.` 
+        }),
         { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
