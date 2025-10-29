@@ -118,7 +118,7 @@ const branchLocations = [
 
         const showStatus = (message, type) => setStatus(statusBox, message, type);
 
-        form.addEventListener("submit", (event) => {
+        form.addEventListener("submit", async (event) => {
           event.preventDefault();
           if (!form.reportValidity()) return;
 
