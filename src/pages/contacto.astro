@@ -2,7 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 
 // Access key de Web3Forms
-const WEB3FORMS_ACCESS_KEY = "f3f8b80a-7457-4438-bbe9-ad2de28b6a8a";
+const WEB3FORMS_ACCESS_KEY = import.meta.env.KEY_WEB3FORMS ?? "";
 
 const contactInfo = [
   {
